@@ -1,5 +1,5 @@
 # shear-pipe-peaks
-Preliminary work using peak counts on CFIS data
+Preliminary work using peak counts on CFIS data.
 
 So far you can find in the repo:
 
