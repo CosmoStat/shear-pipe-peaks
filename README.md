@@ -5,6 +5,11 @@ This repository containts the results of the paper: UNIONS: The impact of system
 Authors: Emma Ayçoberry, Virginia Ajani, Axel Guinot, Martin Kilbinger, Valeria Pettorino, Samuel Farrens, CosmoStat members and UNIONS members
 
 
+The Ultraviolet Near-Infrared Optical Northern Survey (UNIONS) is an ongoing deep photometric multi-band survey of the Northern sky. As part of UNIONS, the Canada-France Imaging Survey (CFIS) provides r-band data with a median seeing of $0.65$ arcsec, which we use to study weak-lensing peak counts for cosmological inference.
+This work aims to assess systematics effects for weak-lensing peak counts and their impact on cosmological parameters for the UNIONS survey. In particular, we present results on local calibration, metacalibration shear bias, baryonic feedback, the source galaxy redshift estimate, intrinsic alignment, and the cluster member dilution.
+
+
+
 **Description of the input files**
 - List of the peaks from the simulations at the 2 redshifts: 
 list_cosmo_peaks_z065.txt and list_cosmo_peaks_z068.txt
@@ -13,9 +18,7 @@ list_cosmo_peaks_z065.txt and list_cosmo_peaks_z068.txt
 Fid_correction.npy, HighAGN_correction.npy and LowAGN_correction.npy
 
 - Peaks from CFIS-P3 data with different parameters:
-peaks_mean_global.npy = peaks obtain with the global calibration
-peaks_mean_Xdeg.npy = peaks obtain with the calibration on X square degree
-peaks_mean_dm_1deg.npy = peaks obtain with the calibration on 1 square degree, and the multiplicative shear bias delta m = 0.007
+peaks_mean_global.npy = peaks obtain with the global calibration, peaks_mean_Xdeg.npy = peaks obtain with the calibration on X square degree, peaks_mean_dm_1deg.npy = peaks obtain with the calibration on 1 square degree, and the multiplicative shear bias delta m = 0.007
 
 - Peaks for the covariance (at the 2 redshift):
 convergence_gal_mnv0.00000_om0.30000_As2.1000_peaks_2arcmin_0.65_b030_snr_min_max_ngal_7.npy
@@ -82,8 +85,8 @@ param_baryonic_correction = 0
 param_cut = 30
 
 *Conservative model:*
-param_z = '065' 
-param_z_cov = '0.65' 
-param_cal = ‘dm_1’ 
-param_baryonic_correction = Fid
-param_cut = 19
+param_z = '065',
+param_z_cov = '0.65', 
+param_cal = ‘dm_1’,  
+param_baryonic_correction = 'Fid', 
+param_cut = 19, 
