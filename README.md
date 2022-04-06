@@ -11,8 +11,13 @@ This work aims to assess systematics effects for weak-lensing peak counts and th
 
 
 **Description of the input files**
+
 - List of the peaks from the simulations at the 2 redshifts: 
 list_cosmo_peaks_z065.txt and list_cosmo_peaks_z068.txt
+
+- Peaks distribution coming from simulations: 
+these need to be downloaded [here](https://zenodo.org/record/6344515#.Yk2j6S0QOqA), [DOI: 10.5281/zenodo.6344515](https://zenodo.org/record/6344515#.Yk2k3C0QOqA), then follow the instruction of the notebook and create a folder called peaks_z065/ in the repo where the peaks distribution coming from simulations have to be stored.
+
 
 - Baryonic correction:
 Fid_correction.npy, HighAGN_correction.npy and LowAGN_correction.npy
