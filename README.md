@@ -135,9 +135,10 @@ To run the example you need to git clone this repository as
 
 `git clone https://github.com/CosmoStat/shear-pipe-peaks.git`
 
-ad then go to the example folder and launch the jupyter notebook[constraints_CFIS-P3.ipynb](https://github.com/CosmoStat/shear-pipe-peaks/blob/main/example/constraints_CFIS-P3.ipynb) by doing:
+ad then go to the example folder and launch the jupyter notebook [constraints_CFIS-P3.ipynb](https://github.com/CosmoStat/shear-pipe-peaks/blob/main/example/constraints_CFIS-P3.ipynb) by doing:
 
 `cd example`
+
 `jupyter notebook`
 
 and run it following the instructions in the description of the cells.
