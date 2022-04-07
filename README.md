@@ -1,23 +1,54 @@
-# The impact of systematic errors on weak-lensing peak counts for UNIONS 
+## The impact of systematic errors on weak-lensing peak counts for UNIONS 
 
 This repository containts the results of the paper: UNIONS: The impact of systematic errors on weak-lensing peak counts
 
-Authors: Emma Ayçoberry, Virginia Ajani, Axel Guinot, Martin Kilbinger, Valeria Pettorino, Samuel Farrens, CosmoStat members and UNIONS members
+Authors: Emma Ayçoberry, Virginia Ajani, Axel Guinot, Martin Kilbinger, Valeria Pettorino, Samuel Farrens, Jean-Luc Starck, Raphaël Gavazzi
 
 
-The Ultraviolet Near-Infrared Optical Northern Survey (UNIONS) is an ongoing deep photometric multi-band survey of the Northern sky. As part of UNIONS, the Canada-France Imaging Survey (CFIS) provides r-band data with a median seeing of $0.65$ arcsec, which we use to study weak-lensing peak counts for cosmological inference.
-This work aims to assess systematics effects for weak-lensing peak counts and their impact on cosmological parameters for the UNIONS survey. In particular, we present results on local calibration, metacalibration shear bias, baryonic feedback, the source galaxy redshift estimate, intrinsic alignment, and the cluster member dilution.
+The Ultraviolet Near-Infrared Optical Northern Survey (UNIONS) is an ongoing deep photometric multi-band survey of the Northern sky. As part of UNIONS, the Canada-France Imaging Survey (CFIS) provides r-band data with a median seeing of 0.65 arcsec, which we use to study weak-lensing peak counts for cosmological inference.
+This work aims to assess systematics effects for weak-lensing peak counts and their impact on cosmological parameters for the UNIONS survey. In particular, we present results on local calibration, metacalibration shear bias, baryonic feedback, the source galaxy redshift estimate, intrinsic alignment, and the cluster member dilution. We expect constraints to become more reliable with future (larger) data catalogues, for which the current pipeline will provide a starting point.
+
+
+### Content
+
+1. [Dependencies](https://github.com/CosmoStat/shear-pipe-peaks/edit/main/README.md#dependencies)
+2. [Description of the input files](https://github.com/CosmoStat/shear-pipe-peaks/edit/main/README.md#description-of-the-input-files)
+3. [Example](https://github.com/CosmoStat/shear-pipe-peaks/edit/main/README.md#example)
+
+
+#### Dependencies
+
+The following python packages should be installed with their specific dependencies to be able to run the example:
+
+- [numpy](https://numpy.org/install/)
+- [astropy](https://www.astropy.org)
+- [lenspack](https://github.com/CosmoStat/lenspack.git)
+- [scipy](https://scipy.org/install/)
+- [scikit-learn](https://scikit-learn.org/stable/install.html)>=0.20
+- [matplotlib](https://matplotlib.org/stable/users/installing/index.html)
+- [emcee](https://emcee.readthedocs.io/en/v2.2.1/user/install/)==2.2.1
+- [chainconsumer](https://samreay.github.io/ChainConsumer/)
+- [getdist](https://getdist.readthedocs.io/en/latest/intro.html#getting-started)
+- [zenodo_get](https://github.com/dvolgyes/zenodo_get) 
+- [jupyter](https://jupyter.org/install)
 
 
 
-**Description of the input files**
+
+
+
+#### Description of the input files
+
 
 - List of the peaks from the simulations at the 2 redshifts: 
 list_cosmo_peaks_z065.txt and list_cosmo_peaks_z068.txt
 
 - Peaks distribution coming from simulations: 
-these need to be downloaded [here](https://zenodo.org/record/6344515#.Yk2j6S0QOqA), [DOI: 10.5281/zenodo.6344515](https://zenodo.org/record/6344515#.Yk2k3C0QOqA), then follow the instruction of the notebook and create a folder called peaks_z065/ in the repo where the peaks distribution coming from simulations have to be stored.
+these need to be downloaded from [here](https://zenodo.org/record/6344515#.Yk2j6S0QOqA), [DOI: 10.5281/zenodo.6344515](https://zenodo.org/record/6344515#.Yk2k3C0QOqA). This step is already present in the example notebook where you create a folder called peaks_z065/ in the repo where the peaks distribution coming from simulations have to be stored and download the peaks as:
 
+  `zenodo_get 10.5281/zenodo.6344515`
+
+  in the folder `input/peaks_z065`
 
 - Baryonic correction:
 Fid_correction.npy, HighAGN_correction.npy and LowAGN_correction.npy
@@ -29,7 +60,7 @@ peaks_mean_global.npy = peaks obtain with the global calibration, peaks_mean_Xde
 convergence_gal_mnv0.00000_om0.30000_As2.1000_peaks_2arcmin_0.65_b030_snr_min_max_ngal_7.npy
 convergence_gal_mnv0.00000_om0.30000_As2.1000_peaks_2arcmin_0.68_b030_snr_min_max_ngal_7.npy
 
-**Description of the parameters that can be used in the notebook**
+##### **Description of the parameters that can be used in the notebook**
 - param_z: the redshift of the wanted simulations
 Can be ’065’ or ‘068’
 
@@ -45,7 +76,9 @@ Can be ‘no’ if we don’t want to correct the simulations, or ‘Fid’, ‘
 - param_cut: up to which index of SNR we are going
 Can be 19 if we want to cut the last bins or 30 if we want to keep all the bins.
 
-Configuration needed to obtain the different figures of the paper
+
+______________________________________
+##### _Configuration needed to obtain the different figures of the paper_
 - Fig. 7: test the calibration size
 param_z = '065' 
 param_z_cov = '0.65'
@@ -95,3 +128,20 @@ param_z_cov = '0.65',
 param_cal = ‘dm_1’,  
 param_baryonic_correction = 'Fid', 
 param_cut = 19, 
+
+#### Example
+
+To run the example you need to git clone this repository as 
+
+`git clone https://github.com/CosmoStat/shear-pipe-peaks.git`
+
+ad then go to the example folder and launch the jupyter notebook[constraints_CFIS-P3.ipynb](https://github.com/CosmoStat/shear-pipe-peaks/blob/main/example/constraints_CFIS-P3.ipynb) by doing:
+
+`cd example`
+`jupyter notebook`
+
+and run it following the instructions in the description of the cells.
+
+Follow the [Configuration needed to obtain the different figures of the paper](https://github.com/CosmoStat/shear-pipe-peaks/edit/main/README.md#configuration-needed-to-obtain-the-different-figures-of-the-paper) to get the results of the paper or play with the different [input parameters](https://github.com/CosmoStat/shear-pipe-peaks/edit/main/README.md#description-of-the-parameters-that-can-be-used-in-the-notebook) to get different configurations. 
+
+Contact vajani@phys.ethz.ch or emmaaycoberry@gmail.com for questions concerning the repo.
