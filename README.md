@@ -11,9 +11,9 @@ This work aims to assess systematics effects for weak-lensing peak counts and th
 
 ### Content
 
-1. [Dependencies](https://github.com/CosmoStat/shear-pipe-peaks/edit/main/README.md#dependencies)
-2. [Description of the input files](https://github.com/CosmoStat/shear-pipe-peaks/edit/main/README.md#description-of-the-input-files)
-3. [Example](https://github.com/CosmoStat/shear-pipe-peaks/edit/main/README.md#example)
+1. [Dependencies](#dependencies)
+2. [Description of the input files](#description-of-the-input-files)
+3. [Example](#example)
 
 
 #### Dependencies
@@ -143,6 +143,6 @@ ad then go to the example folder and launch the jupyter notebook [constraints_CF
 
 and run it following the instructions in the description of the cells.
 
-Follow the [Configuration needed to obtain the different figures of the paper](https://github.com/CosmoStat/shear-pipe-peaks/edit/main/README.md#configuration-needed-to-obtain-the-different-figures-of-the-paper) to get the results of the paper or play with the different [input parameters](https://github.com/CosmoStat/shear-pipe-peaks/edit/main/README.md#description-of-the-parameters-that-can-be-used-in-the-notebook) to get different configurations. 
+Follow the [Configuration needed to obtain the different figures of the paper](#configuration-needed-to-obtain-the-different-figures-of-the-paper) to get the results of the paper or play with the different [input parameters](#description-of-the-parameters-that-can-be-used-in-the-notebook) to get different configurations. 
 
 Contact vajani@phys.ethz.ch or emmaaycoberry@gmail.com for questions concerning the repo.
