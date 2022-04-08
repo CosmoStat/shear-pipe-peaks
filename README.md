@@ -145,4 +145,4 @@ and run it following the instructions in the description of the cells.
 
 Follow the [Configuration needed to obtain the different figures of the paper](#configuration-needed-to-obtain-the-different-figures-of-the-paper) to get the results of the paper or play with the different [input parameters](#description-of-the-parameters-that-can-be-used-in-the-notebook) to get different configurations. 
 
-Contact vajani@phys.ethz.ch or emmaaycoberry@gmail.com for questions concerning the repo.
+Contact vajani@phys.ethz.ch or emma.aycoberry@iap.fr for questions concerning the repo.
