@@ -26,7 +26,7 @@ The following python packages should be installed with their specific dependenci
 - [scipy](https://scipy.org/install/)
 - [scikit-learn](https://scikit-learn.org/stable/install.html)>=0.20
 - [matplotlib](https://matplotlib.org/stable/users/installing/index.html)
-- [emcee](https://emcee.readthedocs.io/en/v2.2.1/user/install/)==2.2.1
+- [emcee](https://emcee.readthedocs.io/en/v2.2.1/user/install/)==3.1.1
 - [chainconsumer](https://samreay.github.io/ChainConsumer/)
 - [getdist](https://getdist.readthedocs.io/en/latest/intro.html#getting-started)
 - [zenodo_get](https://github.com/dvolgyes/zenodo_get) 
