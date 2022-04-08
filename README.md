@@ -1,6 +1,6 @@
 ## The impact of systematic errors on weak-lensing peak counts for UNIONS 
 
-This repository containts the results of the paper: UNIONS: The impact of systematic errors on weak-lensing peak counts
+This repository containts the results of the paper "UNIONS: The impact of systematic errors on weak-lensing peak counts".
 
 Authors: Emma Ayçoberry, Virginia Ajani, Axel Guinot, Martin Kilbinger, Valeria Pettorino, Samuel Farrens, Jean-Luc Starck, Raphaël Gavazzi
 
@@ -62,10 +62,10 @@ peaks_mean_global.npy = peaks obtain with the global calibration, peaks_mean_Xde
 convergence_gal_mnv0.00000_om0.30000_As2.1000_peaks_2arcmin_0.65_b030_snr_min_max_ngal_7.npy
 
 ##### **Description of the parameters that can be used in the notebook**
-- param_z: the redshift of the wanted simulations
+- param_z: the redshift of the desired simulations
 Default is ’065’ (if interested in the distributions at other redshifts, please contact emma.aycoberry@iap.fr or vajani@phys.ethz.ch.)
 
-- param_z_cov: the redshift of the wanted simulations, different of the previous file to respect the name given by the simulations
+- param_z_cov: the redshift of the desired simulations, different of the previous file to respect the name given by the simulations
 Default is ’0.65’
 
 - param_cal: the way the calibration is done
