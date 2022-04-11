@@ -130,7 +130,7 @@ param_cut = 19,
 
 #### Example
 
-To run the example you need to git clone this repository as 
+To run the example you need to check that you have propery installed the [Dependencies](#dependencies) listed above in your environment and then git clone this repository as 
 
 `git clone https://github.com/CosmoStat/shear-pipe-peaks.git`
 
