@@ -119,9 +119,13 @@ param_cut = 30
 
 *Conservative model:*
 param_z = '065',
+
 param_z_cov = '0.65', 
+
 param_cal = ‘dm_1’,  
+
 param_baryonic_correction = 'Fid', 
+
 param_cut = 19, 
 
 #### Example
