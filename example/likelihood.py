@@ -7,8 +7,6 @@ import scipy.stats as stats
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
-
-
 def gp_train(index_bin, params_train, obs_train):
     
     """
