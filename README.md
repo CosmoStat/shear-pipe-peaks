@@ -32,6 +32,8 @@ The following python packages should be installed with their specific dependenci
 - [chainconsumer](https://samreay.github.io/ChainConsumer/)
 - [getdist](https://getdist.readthedocs.io/en/latest/intro.html#getting-started)
 - [zenodo_get](https://github.com/dvolgyes/zenodo_get) 
+- [joblib](https://joblib.readthedocs.io/en/latest/)
+- [tqdm](https://tqdm.github.io/)
 - [jupyter](https://jupyter.org/install)
 
 
