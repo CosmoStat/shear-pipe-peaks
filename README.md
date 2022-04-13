@@ -18,7 +18,13 @@ This work aims to assess systematics effects for weak-lensing peak counts and th
 
 #### Dependencies
 
-The following python packages should be installed with their specific dependencies to be able to run the example:
+To be able to run the example, the following python packages should be installed with their specific dependencies in a `python==3.6` environment.
+You can follow the instructions to install Anaconda [here](https://docs.anaconda.com/anaconda/install/index.html) or miniconda [here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and create an environment as
+
+``conda create --name <your_env> python==3.6.13``
+
+then install the following packages:
+
 
 - [numpy](https://numpy.org/install/)
 - [astropy](https://www.astropy.org)
