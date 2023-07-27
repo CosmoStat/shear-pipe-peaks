@@ -1,2 +1,5 @@
+build
+sp_peaks.egg-info/
 .ipynb_checkpoints
+example/test_slics.ipynb
 __pycache__
