@@ -8,9 +8,9 @@ Included is code to reproduce results and plots from Ayçoberry et al. (2022); s
 ## Content
 
 1. [The impact of systematic errors on weak-lensing peak counts for UNIONS](#the-impact-of-systematic-errors-on-weak-lensing-peak-counts-for-unions)
-  1. [Installation](#installation)
-  1. [Description of the input files](#description-of-the-input-files)
-  1. [Example](#example)
+   1. [Installation](#installation)
+   1. [Description of the input files](#description-of-the-input-files)
+   1. [Example](#example)
 
 
 ## The impact of systematic errors on weak-lensing peak counts for UNIONS 
