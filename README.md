@@ -3,15 +3,23 @@
 This python package contains methods for cosmological parameter inference from weak-lensing peak counts.
 It works with galaxy catalogue data processed with ShapePipe, but is general to be used with other data.
 
+To use this code, download this repository by clicking on the `Clone` button above.
+
+
 Included is code to reproduce results and plots from Ayçoberry et al. (2022); see below.
 
 ## Content
 
+1. [The python library](#the-python-library)
+   1. [Installation](#installation) 
 1. [The impact of systematic errors on weak-lensing peak counts for UNIONS](#the-impact-of-systematic-errors-on-weak-lensing-peak-counts-for-unions)
    1. [Installation](#installation)
    1. [Description of the input files](#description-of-the-input-files)
    1. [Example](#example)
 
+## The python library
+
+### Installation
 
 ## The impact of systematic errors on weak-lensing peak counts for UNIONS 
 
@@ -26,8 +34,6 @@ This work aims to assess systematics effects for weak-lensing peak counts and th
 
 
 ### Installation
-
-First, download this repository by clicking on the `Clone` button above.
 
 The easiest way to install the required software is using `conda`.
 You can follow the instructions to install Anaconda [here](https://docs.anaconda.com/anaconda/install/index.html) or miniconda [here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html). To create the conda environnment, type
