@@ -1,19 +1,28 @@
+# Weak-lensing peak counts with ShapePipe processed data
+
+This python package contains methods for cosmological parameter inference from weak-lensing peak counts.
+It works with galaxy catalogue data processed with ShapePipe, but is general to be used with other data.
+
+Included is code to reproduce results and plots from Ayçoberry et al. (2022); see below.
+
+### Content
+
+1. [The impact of systematic errors on weak-lensing peak counts for UNIONS](#the-impact-of-systematic-errors-on-weak-lensing-peak-counts-for-unions)
+1. [Dependencies](#dependencies)
+2. [Description of the input files](#description-of-the-input-files)
+3. [Example](#example)
+
+
 ## The impact of systematic errors on weak-lensing peak counts for UNIONS 
 
-This repository containts the results of the paper "UNIONS: The impact of systematic errors on weak-lensing peak counts".
+This repository contains the results of the paper "UNIONS: The impact of systematic errors on weak-lensing peak counts".
 
 Authors: Emma Ayçoberry, Virginia Ajani, Axel Guinot, Martin Kilbinger, Valeria Pettorino, Samuel Farrens, Jean-Luc Starck, Raphaël Gavazzi, Michael J. Hudson
 
 
 The Ultraviolet Near-Infrared Optical Northern Survey (UNIONS) is an ongoing deep photometric multi-band survey of the Northern sky. As part of UNIONS, the Canada-France Imaging Survey (CFIS) provides r-band data with a median seeing of 0.65 arcsec, which we use to study weak-lensing peak counts for cosmological inference.
-This work aims to assess systematics effects for weak-lensing peak counts and their impact on cosmological parameters for the UNIONS survey. In particular, we present results on local calibration, metacalibration shear bias, baryonic feedback, the source galaxy redshift estimate, intrinsic alignment, and the cluster member dilution. We expect constraints to become more reliable with future (larger) data catalogues, for which the current pipeline will provide a starting point. This paper investigates for the first time with UNIONS weak-lensing data and peak counts the impact of the local calibration, residual multiplicative shear bias, redshift uncertainty, baryonic feedback, intrinsic alignment and cluster member dilution. The value of matter density parameter is the most impacted and can shift up to ~ 0.03 which corresponds to 0.5 sigma depending on the choices for each systematics. We expect constraints to become more reliable with future (larger) data catalogues, for which the current code provides a starting point.
+This work aims to assess systematics effects for weak-lensing peak counts and their impact on cosmological parameters for the UNIONS survey. In particular, we present results on local calibration, metacalibration shear bias, baryonic feedback, the source galaxy redshift estimate, intrinsic alignment, and cluster member dilution. We expect constraints to become more reliable with future (larger) data catalogues, for which the current pipeline will provide a starting point. This paper investigates for the first time with UNIONS weak-lensing data and peak counts the impact of the local calibration, residual multiplicative shear bias, redshift uncertainty, baryonic feedback, intrinsic alignment and cluster member dilution. The value of matter density parameter is the most impacted and can shift up to ~ 0.03 which corresponds to 0.5 sigma depending on the choices for each systematics. We expect constraints to become more reliable with future (larger) data catalogues, for which the current code provides a starting point.
 
-
-### Content
-
-1. [Dependencies](#dependencies)
-2. [Description of the input files](#description-of-the-input-files)
-3. [Example](#example)
 
 
 #### Dependencies
