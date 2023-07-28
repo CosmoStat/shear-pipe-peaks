@@ -5,13 +5,17 @@ It works with galaxy catalogue data processed with ShapePipe, but is general to 
 
 To use this code, download this repository by clicking on the `Clone` button above.
 
+The easiest way to install the required software is using `conda`.
+You can follow the instructions to install Anaconda [here](https://docs.anaconda.com/anaconda/install/index.html) or miniconda [here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html).
 
 Included is code to reproduce results and plots from Ayçoberry et al. (2022); see below.
 
 ## Content
 
 1. [The python library](#the-python-library)
-   1. [Installation](#installation) 
+   1. [Installation](#installation)
+   1. [Usage](#usage)
+   1. [Examples](#examples)
 1. [The impact of systematic errors on weak-lensing peak counts for UNIONS](#the-impact-of-systematic-errors-on-weak-lensing-peak-counts-for-unions)
    1. [Installation](#installation)
    1. [Description of the input files](#description-of-the-input-files)
@@ -20,6 +24,24 @@ Included is code to reproduce results and plots from Ayçoberry et al. (2022); s
 ## The python library
 
 ### Installation
+
+To create the conda environment type
+```bash
+conda create -f environment.yml
+```
+
+### Usage
+
+Once installed, any library files can be used via `import` in a python script or notebook, e.g.:
+```python
+import sp_peaks
+from sp_peaks import slics
+```
+
+### Examples
+
+Example notebooks and associated python scripts can be run in the `notebooks` folder.
+
 
 ## The impact of systematic errors on weak-lensing peak counts for UNIONS 
 
@@ -35,8 +57,7 @@ This work aims to assess systematics effects for weak-lensing peak counts and th
 
 ### Installation
 
-The easiest way to install the required software is using `conda`.
-You can follow the instructions to install Anaconda [here](https://docs.anaconda.com/anaconda/install/index.html) or miniconda [here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html). To create the conda environnment, type
+To create the conda environment type
 ```bash
 conda create -f environment_3.6.yml
 ```
