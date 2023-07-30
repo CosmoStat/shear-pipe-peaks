@@ -1,65 +1,28 @@
-[project]
+[tool.poetry]
 name = "sp_peaks"
+version = "0.0.1"
+description = "ShapePipe peak counts"
 readme = "README.md"
-#requires-python = "==3.6.13"
-requires-python = ">=3.10"
 authors = [
-    { "name" = "The CosmoStat Lab" },
-]
-maintainers = [
-    { "name" = "Andreas Tersenov", "email" = "andreas.tersenov@cea.fr" },
-    { "name" = "Lucie Baumont", "email" = "lucie.baumont@cea.fr" },
-    { "name" = "Martin Kilbinger", "email" = "martin.kilbinger@cea.fr" },
-]
-dynamic = ["version"]
-license = { "file" = "LICENSE" }
-keywords = [
-    "CosmoStat",
-    "cosmology",
-    "weak gravitational lensing",
-    "peak counts",
-]
-classifiers = [
-    "Development Status :: 1 - Planning",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
-    "Operating System :: POSIX :: Linux",
-    "Operating System :: MacOS",
-    "Topic :: Scientific/Engineering",
-]
-dependencies = [
-    "astropy>=4.0",
-    "numpy>=1.19",
-    "scipy>=1.5",
-    "scikit-learn>=1.3",
+    "Andreas Tersenov <andreas.tersenov@cea.fr>",
+    "Lucie Baumont <lucie.baumont@cea.fr>",
+    "Martin Kilbinger <martin.kilbinger@cea.fr>",
 ]
 
-[project.optional-dependencies]
-lint = [
-    "black",
-]
-release = [
-    "build",
-    "twine",
-]
-test = [
-  "pytest",
-  "pytest-black",
-  "pytest-cov",
-  "pytest-pydocstyle",
-]
-
-# Install for development
-dev = ["sp_peaks[lint,release,test]"]
-
-[project.urls]
-Source = "https://github.com/CosmoStat/shear-pipe-peaks"
-Documentation = "https://github.com/CosmoStat/shear-pipe-peaks"
-Tracker = "https://github.com/CosmoStat/shear-pipe-peaks/issues"
+[tool.poetry.dev-dependencies]
+pytest = "^7.0"
+pytest-black = "^0.3"
+pytest-cov = "^2.0"
+pytest-pydocstyle = "*"
 
 [tool.black]
 line-length = 80
+target-version = ["py309", "py310", "py311"]
+
+[tool.poetry.urls]
+Source = "https://github.com/CosmoStat/shear-pipe-peaks"
+Documentation = "https://github.com/CosmoStat/shear-pipe-peaks"
+Tracker = "https://github.com/CosmoStat/shear-pipe-peaks/issues"
 
 [tool.pydocstyle]
 convention = "numpy"
@@ -68,9 +31,35 @@ convention = "numpy"
 addopts = "--verbose --black --pydocstyle --cov=sp_peaks"
 testpaths = ["sp_peaks"]
 
-# Select library directory(ies)
 [tool.setuptools]
 packages = ["sp_peaks"]
 
 [tool.setuptools.dynamic]
 version = {attr = "sp_peaks.__version__"}
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+astropy = "*"
+joblib = "*"
+matplotlib = "*"
+numpy = "*"
+scipy = "*"
+scikit-learn = "*"
+tqdm = "*"
+
+chainconsumer = "*"
+cs_util = "*"
+emcee = "^3.1.1"
+getdist = "*"
+jupyter = "*"
+jupytext = "*"
+lenspack = "*"
+zenodo_get = "*"
+
+[tool.poetry.scripts]
+run = "sp_peaks.transform_to_notebooks:main"
+
+[build-system]
+requires = ["flit_core>=3.0.0"]
+build-backend = "flit_core.buildapi"

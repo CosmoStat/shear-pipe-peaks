@@ -73,30 +73,7 @@ len(dat_comb)
 # +
 # Read CFIS redshift distribution (blind version "A", ShapePipe)
 dndz_CFIS_path = "/n17data/mkilbing/astro/data/CFIS/v1.0/nz/dndz_SP_A.txt"
-z_centers_ext, dndz_ext, z_edges_ext = cs_cat.read_dndz(dndz_CFIS_path)
-
-nz = len(z_edges_ext)
-print(len(z_centers_ext), len(dndz_ext), len(z_edges_ext))
+res = slics.resample_z(dat_comb, dndz_CFIS_path, len(dat_comb) / 4, z_max=1.8)
 # -
-
-dndz_slics, z_edges_slics = np.histogram(dat_comb["redshift_true_sim"], bins=z_edges_CFIS)
-
-# CHeck that z
-max(z_edges_slics - z_edges_ext)
-
-plt.plot(res[1][:-1], res[0] / sum(res[0]), '-')
-plt.plot(z_centers_ext, dndz_ext / sum(dndz_ext), '-')
-
-res[1][np.where(res[0] == 0)]
-
-z_max = 1.8
-
-idx_z_max = np.where(z_edges_ext < z_max)                               
-dndz_ext = dndz_ext[idx_z_max]                                          
-dndz_slics = dndz_slics[idx_z_max] 
-
-probability = dndz_ext / dndz_slics 
-
-probability
 
 

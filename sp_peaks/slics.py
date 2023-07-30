@@ -9,6 +9,7 @@
 """
 
 import os
+import random
 import numpy as np
 
 from astropy.io import ascii
@@ -181,7 +182,7 @@ def read_multiple_catalogues(
     return dat_comb
 
 
-def resample_z(dat, dndz_path, z_max=None):
+def resample_z(dat, dndz_path, n_goal, z_max=None):
 
     # Read external dndz file
     z_centers_ext, dndz_ext, z_edges_ext = cs_cat.read_dndz(dndz_path)
@@ -198,11 +199,36 @@ def resample_z(dat, dndz_path, z_max=None):
         dndz_ext = dndz_ext[idx_z_max]
         dndz_slics = dndz_slics[idx_z_max]
 
-    # Normalise redshift distributions
-    dndz_ext = dndz_ext / sum(dndz_ext)
-    dndz_slics = dndz_slics / sum(dndz_slics)
+    # Normalise external redshift distributions to desired number of resampled
+    # objects
+    dndz_ext = dndz_ext / sum(dndz_ext) * n_goal
 
-    probability = dndz_ext / dndz_slics
+    import pdb
+    pdb.set_trace()
 
-    
+    # Ratio of external to SLICS histogram = fraction of galaxies in each
+    # bin to resample
+    ratio = dndz_ext / dndz_slics
 
+    if (ratio == 0).any():
+        print(
+            "Warning: in at least one z-bin the number of resampled galaxies"
+            + " will be zero"
+        )
+
+    # TODO: user-input of total resampled number (or number density)
+
+    # Get indices in external redshift histogram of SLICS input catalogue
+    idx_z = np.digitize(dat["redshift_true_sim"], z_edges_ext)
+
+    for idx in range(len(dndz_slics)):
+        n_drop = int(ratio[idx] * dndz_slics[idx])
+
+        # Get index list for this z-bin                                 
+        w = (np.where(idx_z == idx + 1))[0]
+
+        # Create sample of Indices of objects to be dropped for this bin
+        i_drop = random.sample(list(w), n_drop)
+
+        # Mark objects to be dropped with invalid redshift              
+        dat["redshift_true_sim"][i_drop] = -99
