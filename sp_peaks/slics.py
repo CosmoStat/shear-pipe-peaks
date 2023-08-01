@@ -15,6 +15,8 @@ import numpy as np
 from astropy.io import ascii
 from astropy.table import vstack
 
+from lenspack.geometry import measures
+
 from cs_util import cat as cs_cat
 
 
@@ -182,13 +184,44 @@ def read_multiple_catalogues(
     return dat_comb
 
 
-def resample_z(dat, dndz_path, n_goal, z_max=None):
+def drop_marked(dat):
+    """Drop Marked.
 
+    Remove rows with marked (np.inf) redshifts.
+
+    Parameters
+    ----------
+    dat : dict
+        input SLICS catalogue
+
+    """
+    idx_drop = np.isnan(dat["redshift_true_sim"])
+    dat_out = dat[~idx_drop]
+
+
+def resample_z(dat, dndz_path, n_goal, z_max=None, verbose=False):
+    """Resample Z.
+
+    Resample catalogue according to external redshift distribution from file.
+
+    Parameters
+    ----------
+    dat : dict
+        input SLICS catalogue
+    dndz_path : str
+        path to external redshift distribution file
+    n_goal : int
+        number of galaxies to be reached after resampling
+    z_max : float, optional
+        maximum redshift, default is ``None`` (use all redshifts)
+    verbose : bool, optional
+        verbose output if ``True``, default is ``False``
+    """
     # Read external dndz file
     z_centers_ext, dndz_ext, z_edges_ext = cs_cat.read_dndz(dndz_path)
 
     # Create redshift histogram of SLICS catalogue, using external zbins
-    dndz_slics, z_edges_slics = np.histogram(
+    dndz_slics, _ = np.histogram(
         dat["redshift_true_sim"],
         bins=z_edges_ext
     )
@@ -196,15 +229,13 @@ def resample_z(dat, dndz_path, n_goal, z_max=None):
     # Cut redshifts if desired
     if z_max is not None:
         idx_z_max = np.where(z_edges_ext < z_max)
+        z_centers_ext = z_centers_ext[idx_z_max]
         dndz_ext = dndz_ext[idx_z_max]
         dndz_slics = dndz_slics[idx_z_max]
 
     # Normalise external redshift distributions to desired number of resampled
     # objects
     dndz_ext = dndz_ext / sum(dndz_ext) * n_goal
-
-    import pdb
-    pdb.set_trace()
 
     # Ratio of external to SLICS histogram = fraction of galaxies in each
     # bin to resample
@@ -213,22 +244,90 @@ def resample_z(dat, dndz_path, n_goal, z_max=None):
     if (ratio == 0).any():
         print(
             "Warning: in at least one z-bin the number of resampled galaxies"
-            + " will be zero"
+            + " will be zero."
         )
 
-    # TODO: user-input of total resampled number (or number density)
+    idx_over = np.where(ratio > 1)[0]
+    if len(idx_over) > 0:
+        print(
+            f"Warning: in {len(idx_over)} z-bins the number of resampled"
+            + " galaxies is larger than the input number."
+        )
+
+        # Truncate ratio to one
+        ratio[idx_over] = 1
 
     # Get indices in external redshift histogram of SLICS input catalogue
     idx_z = np.digitize(dat["redshift_true_sim"], z_edges_ext)
 
+    n_tot = 0
+    #import pdb
+    #pdb.set_trace()
     for idx in range(len(dndz_slics)):
-        n_drop = int(ratio[idx] * dndz_slics[idx])
+        n_drop = dndz_slics[idx] - int(ratio[idx] * dndz_slics[idx])
 
         # Get index list for this z-bin                                 
         w = (np.where(idx_z == idx + 1))[0]
 
         # Create sample of Indices of objects to be dropped for this bin
-        i_drop = random.sample(list(w), n_drop)
+        i_drop = np.array(random.sample(list(w), n_drop))
 
         # Mark objects to be dropped with invalid redshift              
-        dat["redshift_true_sim"][i_drop] = -99
+        dat["redshift_true_sim"][i_drop] = np.inf
+
+        n_tot = n_tot + len(i_drop)
+
+    if verbose:
+        print(f'dropping {n_tot} to match nofz'.format(n_tot))
+
+    drop_marked(dat)
+
+
+def get_extend(dat):
+    """Get extend.
+
+    Return extend of catalogue.
+
+    Parameters
+    ----------
+    dat : dict
+        input SLICS catalogue
+
+    Returns
+    -------
+    list
+        extend ([ra_min, ra_max, dec_min, dec_max])
+
+    """
+    ra_min = np.amin(dat["RA"])
+    ra_max = np.amax(dat["RA"])
+    dec_min = np.amin(dat["Dec"])
+    dec_max = np.amax(dat["Dec"])
+
+    return [ra_min, ra_max, dec_min, dec_max]
+
+
+def get_number_density(dat):
+    """Get Number Density
+
+    Return galaxy number density, not accounting for masking
+
+    Parameters
+    ----------
+    dat : dict
+        input SLICS catalogue
+
+    Returns
+    -------
+    float
+        number of galaxies [arcmin^{-2}]
+
+    """
+    extend = get_extend(dat)
+
+    solid_angle_deg = measures.solid_angle(extend)
+    solid_angle_amin = solid_angle_deg * 60 ** 2
+
+    ngal = len(dat) / solid_angle_amin
+
+    return ngal
