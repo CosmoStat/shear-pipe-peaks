@@ -239,19 +239,28 @@ def resample_z(dat, dndz_path, n_goal, z_max=None, verbose=False):
 
     # Ratio of external to SLICS histogram = fraction of galaxies in each
     # bin to resample
-    ratio = dndz_ext / dndz_slics
+    ratio = dndz_ext
+    w_nonz = dndz_slics > 0
 
-    if (ratio == 0).any():
+    # Set ratio where SLICS histogram is non-zero
+    ratio[w_nonz] = ratio[w_nonz] / dndz_slics[w_nonz]
+
+    # Set to 0 where SLICS histogram is zero -> resample zero galaxies
+    # in this bin
+    ratio[~w_nonz] = 0
+
+    idx_zero = np.where(~w_nonz)[0]
+    if len(idx_zero) > 0:
         print(
-            "Warning: in at least one z-bin the number of resampled galaxies"
-            + " will be zero."
+            f"Warning: in {len(idx_zero)} z-bins the number of resampled galaxies"
+            + " will be set to zero."
         )
 
     idx_over = np.where(ratio > 1)[0]
     if len(idx_over) > 0:
         print(
             f"Warning: in {len(idx_over)} z-bins the number of resampled"
-            + " galaxies is larger than the input number."
+            + " galaxies will be set to the original number."
         )
 
         # Truncate ratio to one
@@ -261,21 +270,31 @@ def resample_z(dat, dndz_path, n_goal, z_max=None, verbose=False):
     idx_z = np.digitize(dat["redshift_true_sim"], z_edges_ext)
 
     n_tot = 0
-    #import pdb
-    #pdb.set_trace()
     for idx in range(len(dndz_slics)):
-        n_drop = dndz_slics[idx] - int(ratio[idx] * dndz_slics[idx])
+
+        if ratio[idx] == 1:
+            # No galaxy is removed in this z-bin
+            continue
 
         # Get index list for this z-bin                                 
         w = (np.where(idx_z == idx + 1))[0]
 
-        # Create sample of Indices of objects to be dropped for this bin
-        i_drop = np.array(random.sample(list(w), n_drop))
+        if ratio[idx] > 0:
+            # Number of objects to remove
+            n_drop = dndz_slics[idx] - int(ratio[idx] * dndz_slics[idx])
 
-        # Mark objects to be dropped with invalid redshift              
-        dat["redshift_true_sim"][i_drop] = np.inf
+            # Create sample of Indices of objects to be dropped for this bin
+            i_drop = np.array(random.sample(list(w), n_drop))
 
-        n_tot = n_tot + len(i_drop)
+            # Mark objects to be dropped with invalid redshift              
+            dat["redshift_true_sim"][i_drop] = np.inf
+
+        else:
+            # Remove all objects in this z-bin
+            n_drop = len(w)
+            dat["redshift_true_sim"][w] = np.inf
+
+        n_tot = n_tot + n_drop
 
     if verbose:
         print(f'dropping {n_tot} to match nofz'.format(n_tot))
