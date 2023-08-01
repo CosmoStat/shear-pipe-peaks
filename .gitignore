@@ -2,6 +2,6 @@ build
 dist
 sp_peaks.egg-info/
 .ipynb_checkpoints
-notebook/test_slics.ipynb
+notebooks/test_slics.ipynb
 __pycache__
 poetry.lock
