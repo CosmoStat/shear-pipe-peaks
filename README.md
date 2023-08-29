@@ -1,48 +1,67 @@
+# Weak-lensing peak counts with ShapePipe processed data
+
+This python package contains methods for cosmological parameter inference from weak-lensing peak counts.
+It works with galaxy catalogue data processed with ShapePipe, but is general to be used with other data.
+
+To use this code, download this repository by clicking on the `Clone` button above.
+
+The easiest way to install the required software is using `conda`.
+You can follow the instructions to install Anaconda [here](https://docs.anaconda.com/anaconda/install/index.html) or miniconda [here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html).
+
+Included is code to reproduce results and plots from Ayçoberry et al. (2022); see below.
+
+## Content
+
+1. [The python library](#the-python-library)
+   1. [Installation](#installation)
+   1. [Usage](#usage)
+   1. [Examples](#examples)
+1. [The impact of systematic errors on weak-lensing peak counts for UNIONS](#the-impact-of-systematic-errors-on-weak-lensing-peak-counts-for-unions)
+   1. [Installation](#installation)
+   1. [Description of the input files](#description-of-the-input-files)
+   1. [Example](#example)
+
+## The python library
+
+### Installation
+
+To create the conda environment type
+```bash
+conda create -f environment.yml
+```
+
+### Usage
+
+Once installed, any library files can be used via `import` in a python script or notebook, e.g.:
+```python
+import sp_peaks
+from sp_peaks import slics
+```
+
+### Examples
+
+Example notebooks and associated python scripts can be run in the `notebooks` folder.
+
+
 ## The impact of systematic errors on weak-lensing peak counts for UNIONS 
 
-This repository containts the results of the paper "UNIONS: The impact of systematic errors on weak-lensing peak counts".
+This part reproduces the results of the paper "UNIONS: The impact of systematic errors on weak-lensing peak counts".
 
 Authors: Emma Ayçoberry, Virginia Ajani, Axel Guinot, Martin Kilbinger, Valeria Pettorino, Samuel Farrens, Jean-Luc Starck, Raphaël Gavazzi, Michael J. Hudson
 
-
+Abstract:
 The Ultraviolet Near-Infrared Optical Northern Survey (UNIONS) is an ongoing deep photometric multi-band survey of the Northern sky. As part of UNIONS, the Canada-France Imaging Survey (CFIS) provides r-band data with a median seeing of 0.65 arcsec, which we use to study weak-lensing peak counts for cosmological inference.
-This work aims to assess systematics effects for weak-lensing peak counts and their impact on cosmological parameters for the UNIONS survey. In particular, we present results on local calibration, metacalibration shear bias, baryonic feedback, the source galaxy redshift estimate, intrinsic alignment, and the cluster member dilution. We expect constraints to become more reliable with future (larger) data catalogues, for which the current pipeline will provide a starting point. This paper investigates for the first time with UNIONS weak-lensing data and peak counts the impact of the local calibration, residual multiplicative shear bias, redshift uncertainty, baryonic feedback, intrinsic alignment and cluster member dilution. The value of matter density parameter is the most impacted and can shift up to ~ 0.03 which corresponds to 0.5 sigma depending on the choices for each systematics. We expect constraints to become more reliable with future (larger) data catalogues, for which the current code provides a starting point.
-
-
-### Content
-
-1. [Dependencies](#dependencies)
-2. [Description of the input files](#description-of-the-input-files)
-3. [Example](#example)
-
-
-#### Dependencies
-
-To be able to run the example, the following python packages should be installed with their specific dependencies in a `python==3.6` environment.
-You can follow the instructions to install Anaconda [here](https://docs.anaconda.com/anaconda/install/index.html) or miniconda [here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and create an environment as
-
-``conda create --name <your_env> python==3.6.13``
-
-then install the following packages:
-
-
-- [numpy](https://numpy.org/install/)
-- [astropy](https://www.astropy.org)
-- [lenspack](https://github.com/CosmoStat/lenspack.git)
-- [scipy](https://scipy.org/install/)
-- [scikit-learn](https://scikit-learn.org/stable/install.html)==0.20
-- [matplotlib](https://matplotlib.org/stable/users/installing/index.html)
-- [emcee](https://emcee.readthedocs.io/en/v2.2.1/user/install/)==3.1.1
-- [joblib](https://joblib.readthedocs.io/en/latest/installing.html)
-- [tqdm](https://github.com/tqdm/tqdm#installation)
-- [chainconsumer](https://samreay.github.io/ChainConsumer/)
-- [getdist](https://getdist.readthedocs.io/en/latest/intro.html#getting-started)
-- [zenodo_get](https://github.com/dvolgyes/zenodo_get) 
-- [jupyter](https://jupyter.org/install)
+This work aims to assess systematics effects for weak-lensing peak counts and their impact on cosmological parameters for the UNIONS survey. In particular, we present results on local calibration, metacalibration shear bias, baryonic feedback, the source galaxy redshift estimate, intrinsic alignment, and cluster member dilution. We expect constraints to become more reliable with future (larger) data catalogues, for which the current pipeline will provide a starting point. This paper investigates for the first time with UNIONS weak-lensing data and peak counts the impact of the local calibration, residual multiplicative shear bias, redshift uncertainty, baryonic feedback, intrinsic alignment and cluster member dilution. The value of matter density parameter is the most impacted and can shift up to ~ 0.03 which corresponds to 0.5 sigma depending on the choices for each systematics. We expect constraints to become more reliable with future (larger) data catalogues, for which the current code provides a starting point.
 
 
 
+### Installation
 
+To create the conda environment type
+```bash
+conda create -f environment_3.6.yml
+```
+Note that python version 3.6.13 is required.
 
 
 #### Description of the input files
@@ -138,11 +157,7 @@ param_cut = 19,
 
 #### Example
 
-To run the example you need to check that you have propery installed the [Dependencies](#dependencies) listed above in your environment and then git clone this repository as 
-
-`git clone https://github.com/CosmoStat/shear-pipe-peaks.git`
-
-ad then go to the example folder and launch the jupyter notebook [constraints_CFIS-P3.ipynb](https://github.com/CosmoStat/shear-pipe-peaks/blob/main/example/constraints_CFIS-P3.ipynb) by doing:
+After installing the package, see [Dependencies](#dependencies), go to the example folder and launch the jupyter notebook [constraints_CFIS-P3.ipynb](https://github.com/CosmoStat/shear-pipe-peaks/blob/main/example/constraints_CFIS-P3.ipynb) by typing:
 
 `cd example`
 
