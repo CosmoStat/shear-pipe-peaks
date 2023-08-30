@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.0
+#       jupytext_version: 1.14.7
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -31,10 +31,19 @@ import sp_peaks
 print(f"sp_peaks version = {sp_peaks.__version__}")
 
 from sp_peaks import slics
+
+# +
+# Set input directories
+
+# SLICS simulations
+root_directory = "/n17data/tersenov/SLICS/Cosmo_DES"
+#root_directory = "."
+
+# CFIS redshift distribution
+dndz_CFIS_directory = "/n17data/mkilbing/astro/data/CFIS/v1.0/nz"
 # -
 
-#root_directory = "/n17data/tersenov/SLICS/Cosmo_DES"
-root_directory = "."
+# ## Read SLICS catalogue
 
 cat_path = f"{root_directory}/06_f/LOS3/DES_MocksCat_06_f_4_Bin3_LOS3_R19.dat"
 
@@ -52,6 +61,8 @@ dat_ess = slics.read_catalogue(cat_path, all_col=False)
 
 print(dat_ess[0])
 
+# ## Read and combine multiple SLICS catalogues
+
 # Combine all four redshift bins for given cosmo ID, line of sight, and tile number
 dat_comb = slics.read_multiple_catalogues(
     root_directory,
@@ -67,12 +78,13 @@ print(f"Number of galaxies = {len(dat_comb)}")
 n_gal = slics.get_number_density(dat_comb)
 print(f"Number density = {n_gal:.2f} arcmin^{{-2}}")
 
-# Read CFIS redshift distribution (blind version "A", ShapePipe)
-dndz_CFIS_path = "dndz_SP_A.txt"
-#dndz_CFIS_path = "/n17data/mkilbing/astro/data/CFIS/v1.0/nz/dndz_SP_A.txt"dslics.resample_z(dat_comb, dndz_CFIS_path, len(dat_comb) / 4, z_max=1.8)
+# ### Resample SLICS to match exteral dn/dz
+
+# Set CFIS redshift distribution (blind version "A", ShapePipe)
+dndz_CFIS_path = f"{dndz_CFIS_directory}/dndz_SP_A.txt"
 
 # +
-# Testing
+# Test resampling. Compare redshift distributions
 
 # External (CFIS) redshift histogram
 z_centers_ext, dndz_ext, z_edges_ext = cs_cat.read_dndz(dndz_CFIS_path)
@@ -84,8 +96,11 @@ dndz_slics, _ = np.histogram(dat_comb["redshift_true_sim"], bins=z_edges_ext)
 dndz_slics_norm, _ = np.histogram(dat_comb["redshift_true_sim"], bins=z_edges_ext, density=True)
 # -
 
+# Set the number of objects to resample.
+# Has to be smaller than number of input objects.
+n_goal = len(dat_comb) / 2
+
 # Resample
-n_goal = len(dat_comb) / 10
 slics.resample_z(dat_comb, dndz_CFIS_path, n_goal, z_max=1.8, verbose=True)
 
 # +
@@ -100,7 +115,7 @@ fig, ax = plt.subplots(figsize=(8, 8))
 
 ax.plot(
     z_centers_ext, dndz_slics, '-',
-    z_centers_ext, dndz_resampled, '-',
+    z_centers_ext, dndz_resampled, '-.',
 )
 ax.set_xlim([0, 2])
 plt.savefig("dndz_slics_res.pdf")
