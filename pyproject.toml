@@ -1,18 +1,14 @@
-[project]
+[tool.poetry]
 name = "sp_peaks"
+version = "0.0.2"
 readme = "README.md"
-#requires-python = "==3.6.13"
-requires-python = ">=3.10"
+description = "Weak-lensing peak counts from ShapePipe output"
 authors = [
-    { "name" = "The CosmoStat Lab" },
+    "Andreas Tersenov <andreas.tersenov@cea.fr>",
+    "Lucie Baumont <lucie.baumont@cea.fr>",
+    "Martin Kilbinger <martin.kilbinger@cea.fr>",
 ]
-maintainers = [
-    { "name" = "Andreas Tersenov", "email" = "andreas.tersenov@cea.fr" },
-    { "name" = "Lucie Baumont", "email" = "lucie.baumont@cea.fr" },
-    { "name" = "Martin Kilbinger", "email" = "martin.kilbinger@cea.fr" },
-]
-dynamic = ["version"]
-license = { "file" = "LICENSE" }
+license = "MIT" # See file LICENSE
 keywords = [
     "CosmoStat",
     "cosmology",
@@ -28,30 +24,33 @@ classifiers = [
     "Operating System :: MacOS",
     "Topic :: Scientific/Engineering",
 ]
-dependencies = [
-    "astropy>=4.0",
-    "numpy>=1.19",
-    "scipy>=1.5",
-    "scikit-learn>=1.3",
-]
 
-[project.optional-dependencies]
-lint = [
-    "black",
-]
-release = [
-    "build",
-    "twine",
-]
-test = [
-  "pytest",
-  "pytest-black",
-  "pytest-cov",
-  "pytest-pydocstyle",
-]
+[tool.poetry.dependencies]
+python = "^3.9"
+#python = "3.6.13"
+astropy = "^4.0"
+numpy = "^1.19"
+scipy = "^1.5"
+scikit-learn = "^1.3"
+matplotlib = "^3.7.2"
+zenodo-get = "^1.4.0"
+tqdm = "^4.66.1"
+emcee = "3.1.1"
+chainconsumer = "^0.34.0"
+getdist = "^1.4.3"
+jupyter = "^1.0.0"
+jupytext = "^1.15.1"
+lenspack = "^1.0.0"
 
-# Install for development
-dev = ["sp_peaks[lint,release,test]"]
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+pydocstyle = "^6.3.0"
+pytest-cov = "^4.1.0"
+black = "^23.7.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [project.urls]
 Source = "https://github.com/CosmoStat/shear-pipe-peaks"
@@ -67,10 +66,3 @@ convention = "numpy"
 [tool.pytest.ini_options]
 addopts = "--verbose --black --pydocstyle --cov=sp_peaks"
 testpaths = ["sp_peaks"]
-
-# Select library directory(ies)
-[tool.setuptools]
-packages = ["sp_peaks"]
-
-[tool.setuptools.dynamic]
-version = {attr = "sp_peaks.__version__"}
