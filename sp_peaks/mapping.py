@@ -4,8 +4,17 @@
  
 :Description: This package contains methods to create kappa maps and snr maps from shear catalogs                      
                                                                                
-:Authors: Lucie Baumont <lucie.baumont@cea.fr> Martin Kilbinger <martin.kilbinger@cea.fr> 
+:Authors: Lucie Baumont <lucie.baumont@cea.fr> Andreas Tersenov <atersenov@physics.uoc.gr> Martin Kilbinger <martin.kilbinger@cea.fr> 
 """
+import numpy as np
+from lenspack.geometry.projections.gnom import radec2xy
+from lenspack.utils import bin2d
+from lenspack.image.inversion import ks93
+from lenspack.image.transforms import starlet2d
+from lenspack.starlet_l1norm import noise_coeff, get_l1norm_noisy
+from astropy.stats import mad_std
+from scipy import ndimage as ndi
+
 def create_kappa_map(ra, dec, g1_sim, g2_sim, size_x_deg=10, size_y_deg=10, pixel_size_emap_amin=0.4):
     x, y = radec2xy(np.mean(ra), np.mean(dec), ra, dec) # Project (ra,dec) -> (x,y)
 
