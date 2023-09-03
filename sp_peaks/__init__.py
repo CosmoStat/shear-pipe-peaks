@@ -20,6 +20,9 @@ This package makes use of the following third-party packages:
 
 """
 
+__all__ = ['slics']
+
 from warnings import warn
+from . import *
 
 __version__ = "0.0.1"
