@@ -20,8 +20,8 @@ This package makes use of the following third-party packages:
 
 """
 
-__all__ = ['slics']
-
+__all__ = ['slics', 'mapping', 'summary_statistics']
+ 
 from warnings import warn
 from . import *
 
