@@ -7,6 +7,11 @@
 
 :Authors: Martin Kilbinger <martin.kilbinger@cea.fr> Andreas Tersenov <atersenov@physics.uoc.gr>
 """
+import os
+from astropy.io import ascii
+import numpy as np
+
+
 
 col_names = [
     "RA",
@@ -28,11 +33,6 @@ col_names_essential = [
     "e2_data",
     "redshift_true_sim",
 ]
-
-
-import os
-from astropy.io import ascii
-
 
 def read_catalogue(file_path, all_col=True):
     """Read Catalogue.
@@ -70,9 +70,7 @@ def read_catalogue(file_path, all_col=True):
 
     return dat
 
-import numpy as np
-
-def read_SLICS_cats(file_paths):
+def parse_SLICS_filenames(file_paths):
     """Reads the information in the filename.
 
     Parameters
