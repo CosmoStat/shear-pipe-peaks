@@ -127,26 +127,23 @@ def read_SLICS_cosmo_params(file_path):
         Dictionary mapping each ID to its corresponding cosmological parameters
 
     """
+    if not os.path.exists(file_path):
+        raise IOError(f"SLICS cosmological parameters file {file_path} does not exist")
+
+    dat = ascii.read(file_path, names=['ID', 'Om', 'h', 'w_0', 'sigma_8', 'Oc'])
 
     cosmo_params = {}
-
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
-
-        # Iterate over the lines starting from the second line
-        for line in lines[1:]:
-            line = line.strip()
-            if line:
-                parts = line.split()
-                id = int(parts[0])
-                params = {
-                    'Om': float(parts[1]),
-                    'h': float(parts[2]),
-                    'w_0': float(parts[3]),
-                    'sigma_8': float(parts[4]),
-                    'Oc': float(parts[5])
-                }
-                cosmo_params[id] = params
+    
+    for row in dat:
+        id = int(row['ID'])
+        params = {
+            'Om': float(row['Om']),
+            'h': float(row['h']),
+            'w_0': float(row['w_0']),
+            'sigma_8': float(row['sigma_8']),
+            'Oc': float(row['Oc'])
+        }
+        cosmo_params[id] = params
 
     return cosmo_params
 
