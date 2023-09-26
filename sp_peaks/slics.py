@@ -181,6 +181,24 @@ def map_cosmo_params_to_data(data, dat_file_path):
 
 
 def parse_cov_SLICS_filenames(file_paths):
+    """
+    Parse SLICS filenames and extract relevant information.
+
+    Parameters
+    ----------
+    file_paths : list of str
+        List containing the paths to the SLICS data files.
+
+    Returns
+    -------
+    numpy.recarray
+        A structured numpy array containing the parsed data with columns:
+        - 'bin': int, the bin number.
+        - 'LOS': int, the Line of Sight (LOS) number.
+        - 'tile': int, the tile number.
+
+    """
+
     # Make empty recarray to store the data
     data = np.recarray(len(file_paths), dtype=[('bin', int), ('LOS', int), ('tile', int)])
 
@@ -205,6 +223,28 @@ def parse_cov_SLICS_filenames(file_paths):
     return data
 
 def survey_realizations_reconstruction(num_realizations, num_tiles_per_realization, bin_number, los_numbers, file_paths):
+    """
+    Perform survey realizations reconstruction by selecting files based on specified parameters.
+
+    Parameters
+    ----------
+    num_realizations : int
+        The number of survey realizations to reconstruct.
+    num_tiles_per_realization : int
+        The number of tiles to select for each realization.
+    bin_number : int
+        The bin number to reconstruct.
+    los_numbers : list of int
+        A list of available Line of Sight (LOS) numbers.
+    file_paths : list of str
+        List containing the paths to the SLICS data files.
+
+    Returns
+    -------
+    list of list of str
+        A list of collections of selected file paths. Each collection contains filenames for a specific realization.
+
+    """
 
     # Create an empty list to store the collections of selected files for this bin
     collections_of_files = []
