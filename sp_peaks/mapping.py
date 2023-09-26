@@ -4,20 +4,25 @@
  
 :Description: This package contains methods to create kappa maps and snr maps from shear catalogs                      
                                                                                
-:Authors: Lucie Baumont <lucie.baumont@cea.fr> Martin Kilbinger <martin.kilbinger@cea.fr> 
+:Authors: Lucie Baumont <lucie.baumont@cea.fr> Andreas Tersenov <atersenov@physics.uoc.gr> Martin Kilbinger <martin.kilbinger@cea.fr> 
 """
-def create_kappa_map(ra, dec, g1_sim, g2_sim, size_x_deg=10, size_y_deg=10, pixel_size_emap_amin=0.4):
+import numpy as np
+from lenspack.geometry.projections.gnom import radec2xy
+from lenspack.utils import bin2d
+from lenspack.image.inversion import ks93
+from lenspack.image.transforms import starlet2d
+from lenspack.starlet_l1norm import noise_coeff, get_l1norm_noisy
+from astropy.stats import mad_std
+from scipy import ndimage as ndi
+
+def bin_shear_field(ra, dec, g1_sim, g2_sim, size_x_deg=10, size_y_deg=10, pixel_size_emap_amin=0.4):
     x, y = radec2xy(np.mean(ra), np.mean(dec), ra, dec) # Project (ra,dec) -> (x,y)
 
     Nx = int(size_x_deg / pixel_size_emap_amin * 60)
     Ny = int(size_y_deg / pixel_size_emap_amin * 60)
 
     e1map, e2map = bin2d(x, y, npix=(Nx, Ny), v=(g1_sim, g2_sim)) # bin the shear field into a 2D map
-    emap = np.array([e1map,e2map]) # stack the two components into a single array
-
-    kappaE, kappaB = ks93(e1map, -e2map) # make kappa map (the minus sign has to be here for our data conventions)
-    return kappaE, kappaB
-
+    return e1map, e2map
 
 def add_noise_to_kappa_map(kappa_map, shape_noise, n_gal, pix_arcmin):
     sigma_noise_CFIS = shape_noise / (np.sqrt(2 * n_gal * pix_arcmin**2))

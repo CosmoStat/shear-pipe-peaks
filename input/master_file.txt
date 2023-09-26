@@ -74,7 +74,6 @@
 /n17data/tersenov/SLICS/Cosmo_DES/00_a/LOS1/DES_MocksCat_00_a_4_Bin4_LOS1_R17.dat
 /n17data/tersenov/SLICS/Cosmo_DES/00_a/LOS1/DES_MocksCat_00_a_4_Bin4_LOS1_R18.dat
 /n17data/tersenov/SLICS/Cosmo_DES/00_a/LOS1/DES_MocksCat_00_a_4_Bin4_LOS1_R19.dat
-/n17data/tersenov/SLICS/Cosmo_DES/00_a/LOS1/#DES_MocksCat_00_a_4_Bin1_LOS1_R1.dat
 /n17data/tersenov/SLICS/Cosmo_DES/00_a/LOS2/DES_MocksCat_00_a_4_Bin1_LOS2_R1.dat
 /n17data/tersenov/SLICS/Cosmo_DES/00_a/LOS2/DES_MocksCat_00_a_4_Bin1_LOS2_R2.dat
 /n17data/tersenov/SLICS/Cosmo_DES/00_a/LOS2/DES_MocksCat_00_a_4_Bin1_LOS2_R3.dat
