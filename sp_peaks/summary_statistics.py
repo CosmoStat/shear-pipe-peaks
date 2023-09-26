@@ -4,8 +4,9 @@
  
 :Description: This package contains methods to compute summary statistics from mass maps                      
                                                                                
-:Authors: Lucie Baumont <lucie.baumont@cea.fr> Martin Kilbinger <martin.kilbinger@cea.fr> 
+:Authors: Lucie Baumont <lucie.baumont@cea.fr> Andreas Tersenov <atersenov@physics.uoc.gr> Martin Kilbinger <martin.kilbinger@cea.fr> 
 """
+import lenspack.peaks as peaks
 
 def compute_single_scale_peak_counts(snr_map, kappa_snr):
     """
