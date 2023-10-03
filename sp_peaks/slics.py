@@ -198,7 +198,6 @@ def parse_cov_SLICS_filenames(file_paths):
         - 'tile': int, the tile number.
 
     """
-
     # Make empty recarray to store the data
     data = np.recarray(len(file_paths), dtype=[('bin', int), ('LOS', int), ('tile', int)])
 
@@ -245,7 +244,6 @@ def survey_realizations_reconstruction(num_realizations, num_tiles_per_realizati
         A list of collections of selected file paths. Each collection contains filenames for a specific realization.
 
     """
-
     # Create an empty list to store the collections of selected files for this bin
     collections_of_files = []
 
