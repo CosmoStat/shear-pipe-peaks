@@ -9,3 +9,13 @@ input/parsed_cov_data.txt
 input/parsed_cov_data.npy
 output/L1_norm_data_vectors.npy
 output/MS_PC_data_vectors.npy
+output/covariance_matrix_l1_norm.npy
+output/covariance_matrix_l1_norm.pdf
+output/covariance_matrix_MS_PC.npy
+output/covariance_matrix_MS_PC.pdf
+output/covariance_matrix_SS_PC.npy
+output/covariance_matrix_SS_PC.pdf
+output/covariance_matrix.pdf
+output/data_vector_MS_PC.npy
+output/data_vector_SS_PC.npy
+output/L1_norm_data_vector.npy
