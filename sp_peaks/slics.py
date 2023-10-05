@@ -11,6 +11,7 @@ import os
 from astropy.io import ascii
 import numpy as np
 import random
+import pandas as pd
 
 
 
@@ -68,6 +69,19 @@ def read_catalogue(file_path, all_col=True):
         include_names = col_names_essential
 
     dat = ascii.read(file_path, names=col_names, include_names=include_names)
+
+    return dat
+
+def read_catalogue_pd(file_path, all_col=True):
+    if not os.path.exists(file_path):
+        raise IOError(f"SLICS catlogue file {file_path} does not exist")
+
+    if all_col:
+        usecols = None
+    else:
+        usecols = col_names_essential
+
+    dat = pd.read_csv(file_path, names=col_names, usecols=usecols, delim_whitespace=True)
 
     return dat
 
