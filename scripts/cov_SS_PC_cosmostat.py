@@ -1,27 +1,10 @@
 import random
-import sys  
 import os
 import numpy as np
-from numpy import linalg as LA
-from scipy import ndimage as ndi
-from scipy.special import erf
 import matplotlib.pyplot as plt
-from lenspack.utils import bin2d
-from lenspack.geometry.projections.gnom import radec2xy
-from lenspack.image.inversion import ks93
-from lenspack.geometry.projections import gnom
-import lenspack.peaks as peaks
-from lenspack.image.transforms import starlet2d
 from pycs.astro.wl.mass_mapping import *
-from pycs.misc.im_isospec import *
 from pycs.sparsity.sparse2d.starlet import *
 from pycs.misc.cosmostat_init import *
-from pycs.misc.mr_prog import *
-from pycs.misc.utilHSS import *
-from pycs.misc.im1d_tend import *
-from pycs.misc.stats import *
-from pycs.sparsity.sparse2d.dct import dct2d, idct2d
-from pycs.sparsity.sparse2d.dct_inpainting import dct_inpainting
 from pycs.astro.wl.hos_peaks_l1 import *
 from sp_peaks import slics
 from sp_peaks import mapping
