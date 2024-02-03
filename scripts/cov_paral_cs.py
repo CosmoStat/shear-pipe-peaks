@@ -196,6 +196,15 @@ plotting.plot_map(covariance_matrix_SS_PC, title='SS-PC', cmap='viridis', vmin=N
 plotting.plot_map(covariance_matrix_MS_PC, title='MS-PC', cmap='viridis', vmin=None, vmax=None)
 plotting.plot_map(covariance_matrix_l1_norm, title='l1-norm', cmap='viridis', vmin=None, vmax=None)
 
+# Try different plotting
+correlation_matrix_SS_PC = np.corrcoef(covariance_matrix_SS_PC.T)
+correlation_matrix_MS_PC = np.corrcoef(covariance_matrix_MS_PC.T)
+correlation_matrix_l1_norm = np.corrcoef(covariance_matrix_l1_norm.T)
+
+plotting.plot_map(correlation_matrix_SS_PC, title='SS-PC', cmap='viridis', vmin=None, vmax=None)
+plotting.plot_map(correlation_matrix_MS_PC, title='MS-PC', cmap='viridis', vmin=None, vmax=None)
+plotting.plot_map(correlation_matrix_l1_norm, title='l1-norm', cmap='viridis', vmin=None, vmax=None)
+
 # save the figure as pdf
 plt.savefig('.././output/covariance_matrix_SS_PC.pdf')
 plt.savefig('.././output/covariance_matrix_MS_PC.pdf')
