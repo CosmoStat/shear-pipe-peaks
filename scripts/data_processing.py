@@ -26,6 +26,19 @@ NBINS=31
 NBINS_L1 = 40
 
 def make_shear_map(CATALOG_FILE, add_noise=True):
+    """
+    Generates shear maps from a catalog file, optionally adding noise.
+
+    Parameters:
+    - CATALOG_FILE (str): Path to the catalog file containing galaxy data.
+    - add_noise (bool): Flag to determine if noise should be added to the shear maps.
+
+    Returns:
+    - Tuple containing e1map, e2map, mask, sigma_noise:
+      - e1map, e2map: Numpy arrays of the shear fields.
+      - mask: A binary mask indicating the presence of galaxies.
+      - sigma_noise: Noise level in the shear measurements.
+    """
     catalog_data = slics.read_catalogue_pd(CATALOG_FILE)
     ra = catalog_data['RA']
     dec = catalog_data['Dec']
@@ -57,6 +70,18 @@ def make_shear_map(CATALOG_FILE, add_noise=True):
 
 
 def make_mass_map(e1map, e2map, mask, sigma_noise, method='ks'):
+    """
+    Creates a mass map using the specified mass mapping method from shear maps.
+
+    Parameters:
+    - e1map, e2map (np.array): Shear maps for the first and second shear components.
+    - mask (np.array): Binary mask indicating the presence of galaxies.
+    - sigma_noise (np.array): Noise level in the shear measurements.
+    - method (str): Mass mapping method to use, defaults to 'ks' for Kaiser-Squires.
+
+    Returns:
+    - np.array: The generated mass map.
+    """
     d = shear_data()
     d.g1 = e1map
     d.g2 = -e2map
@@ -81,6 +106,21 @@ def make_mass_map(e1map, e2map, mask, sigma_noise, method='ks'):
 
 
 def summary_statistics(ks_noisy, sigma_noise, mask, nscales=NSCALES, min_snr=MIN_SNR, max_snr=MAX_SNR, nbins=NBINS, nbins_l1=NBINS_L1):
+    """
+    Computes summary statistics from a noisy kappa map.
+
+    Parameters:
+    - ks_noisy (np.array): Noisy kappa map.
+    - sigma_noise (np.array): Noise level in the kappa map.
+    - mask (np.array): Binary mask indicating the observational field.
+    - nscales (int): Number of wavelet scales to use.
+    - min_snr, max_snr (float): Minimum and maximum signal-to-noise ratios for peak detection.
+    - nbins (int): Number of bins for histogramming peaks.
+    - nbins_l1 (int): Number of bins for the L1-norm histogram.
+
+    Returns:
+    - Tuple containing Mono_Peaks_Count, Peaks_Count, l1norm: Arrays of the computed summary statistics.
+    """
     nx, ny = ks_noisy.shape
     WT = starlet2d(gen2=False, l2norm=False, verb=False)
     WT.init_starlet(nx, ny, nscale=nscales)
@@ -99,6 +139,19 @@ def summary_statistics(ks_noisy, sigma_noise, mask, nscales=NSCALES, min_snr=MIN
     return H.Mono_Peaks_Count, H.Peaks_Count, H.l1norm
 
 def process_tile(filename, mass_mapping_method='ks', add_noise=False, save_mass_map=False, mass_map_output_file=None):
+    """
+    Processes a single tile: generates shear and mass maps, computes summary statistics.
+
+    Parameters:
+    - filename (str): Path to the catalog file for the tile.
+    - mass_mapping_method (str): Method used for mass mapping.
+    - add_noise (bool): If True, noise is added to the shear maps.
+    - save_mass_map (bool): If True, the generated mass map is saved to disk.
+    - mass_map_output_file (str): Path where the mass map should be saved, if applicable.
+
+    Returns:
+    - Tuple of summary statistics: Mono_Peaks_Count, Peaks_Count, l1norm.
+    """
     e1map, e2map, mask, sigma_noise = make_shear_map(filename, add_noise=add_noise)
     ks = make_mass_map(e1map, e2map, mask, sigma_noise, method=mass_mapping_method)
     ks_noisy = ks
@@ -111,6 +164,16 @@ def process_tile(filename, mass_mapping_method='ks', add_noise=False, save_mass_
 
 
 def worker(args):
+    """
+    Worker function for processing a single tile in parallel. Wrapper around process_tile.
+
+    Parameters:
+    - args (tuple): Arguments to pass to process_tile, including filename, mass mapping method,
+      add_noise flag, save_mass_map flag, and mass_map_output_file path.
+
+    Returns:
+    - The summary statistics from processing the tile.
+    """
     filename, mass_mapping_method, add_noise, save_mass_map = args
     
     # Construct output filename for the mass map
@@ -125,8 +188,18 @@ def worker(args):
 
 def process_footprint(file_list_path, output_dir=None, mass_mapping_method='ks', add_noise=True, save_mass_map=False, num_processes=19):
     """
-    Processes a footprint by parallelizing over the number of tiles in a footprint
-    and returns a single averaged vector for each summary statistic across all tiles.
+    Processes all tiles within a footprint by parallelizing the task and averaging summary statistics.
+
+    Parameters:
+    - file_list_path (str): Path to a file listing all catalog files to process.
+    - output_dir (str): Directory where output files should be saved.
+    - mass_mapping_method (str): Method used for mass mapping.
+    - add_noise (bool): If True, noise is added to the shear maps.
+    - save_mass_map (bool): If True, mass maps are saved.
+    - num_processes (int): Number of parallel processes to use.
+
+    Returns:
+    - Averaged summary statistics across all processed tiles.
     """
     if save_mass_map and output_dir:
         os.makedirs(output_dir, exist_ok=True)
@@ -160,8 +233,19 @@ def process_footprint(file_list_path, output_dir=None, mass_mapping_method='ks',
 
 def process_cosmo(cosmology, cosmo_dir, output_dir, mass_mapping_method='ks', add_noise=True, save_mass_map=False, num_processes=19):
     """
-    Processes files for a specific cosmology and bin by parallelizing over the tiles in a footprint
-    and saves a 10-row table (2 seeds x 5 LOS) for each bin.
+    Processes all tiles for a specific cosmology, generating summary statistics for each bin.
+
+    Parameters:
+    - cosmology (str): Identifier for the cosmology being processed.
+    - cosmo_dir (str): Directory containing the tile list files.
+    - output_dir (str): Directory where summary statistics should be saved.
+    - mass_mapping_method (str): Mass mapping method to use.
+    - add_noise (bool): If True, noise is added to shear maps.
+    - save_mass_map (bool): If True, saves the mass maps alongside the catalog files.
+    - num_processes (int): Number of processes for parallel execution.
+
+    Returns:
+    - None. Results are saved to disk.
     """
     if save_mass_map and output_dir:
         os.makedirs(output_dir, exist_ok=True)
