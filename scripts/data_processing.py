@@ -90,7 +90,7 @@ def summary_statistics(ks_noisy, sigma_noise, mask, nscales=NSCALES, min_snr=MIN
     H.get_mono_scale_peaks(ks_noisy, sigma_noise, mask=mask)
     H.get_wtpeaks(Mask=mask)
     pc = H.Peaks_Count
-    H.get_wtl1(nbins_l1*2, Mask=mask)
+    H.get_wtl1(nbins_l1*2, Mask=mask, min_snr=-6, max_snr=6)
 
     H.plot_mono_peaks_histogram()
     H.plot_peaks_histo(log_scale=True)
@@ -111,11 +111,12 @@ def process_tile(filename, mass_mapping_method='ks', add_noise=False, save_mass_
 
 
 def worker(args):
-    filename, mass_mapping_method, add_noise, save_mass_map, output_dir = args
+    filename, mass_mapping_method, add_noise, save_mass_map = args
+    
     # Construct output filename for the mass map
-    base_name, file_ext = os.path.splitext(os.path.basename(filename))
+    base_name, file_ext = os.path.splitext(filename)
     new_file_ext = '.npy'
-    mass_map_output_file = os.path.join(output_dir, f"{base_name}_{mass_mapping_method}{new_file_ext}") if save_mass_map else None
+    mass_map_output_file = f"{base_name}_{mass_mapping_method}{new_file_ext}" if save_mass_map else None
     
     # Simulate processing the tile
     summary_statistics = process_tile(filename, mass_mapping_method, add_noise, save_mass_map, mass_map_output_file)
@@ -133,7 +134,7 @@ def process_footprint(file_list_path, output_dir=None, mass_mapping_method='ks',
     with open(file_list_path, 'r') as file:
         filenames = file.read().splitlines()
     
-    args = [(filename, mass_mapping_method, add_noise, save_mass_map, output_dir) for filename in filenames]
+    args = [(filename, mass_mapping_method, add_noise, save_mass_map) for filename in filenames]
     
     with Pool(num_processes) as pool:
         results = pool.map(worker, args)
@@ -223,7 +224,6 @@ process_cosmo(
     True,  # Save mass maps
     19  # Number of processes
 )
-
 
 
 
