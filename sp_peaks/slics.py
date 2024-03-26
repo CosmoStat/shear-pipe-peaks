@@ -81,7 +81,7 @@ def read_catalogue_pd(file_path, all_col=True):
     else:
         usecols = col_names_essential
 
-    dat = pd.read_csv(file_path, names=col_names, usecols=usecols, delim_whitespace=True)
+    dat = pd.read_csv(file_path, names=col_names, usecols=usecols, sep='\s+')
 
     return dat
 
