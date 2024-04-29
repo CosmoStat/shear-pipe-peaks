@@ -20,8 +20,7 @@ parser.add_argument('n_tiles',type=int, help='number of tiles in footprint')
 parser.add_argument('map_method',type=str, help='mass mapping method')
 args = parser.parse_args()
 
-# give meaningful variable names to the command line                           
-# arguments:
+
 job_name = args.job_name
 work_dir = args.work_dir  
 run = args.run                                                                 
@@ -46,7 +45,6 @@ for cosmo in np.arange(n_cosmo):
     f = open(filename, 'w') 
     text = """#!/bin/bash                                                                    
 #PBS -o %(fileroot)s.o
-#PBS -e %(fileroot)s.e    
 #PBS -l nodes=1:ppn=%(n_tiles)d,walltime=2:00:00,mem=32GB
 #PBS -N %(job_name)s                                                           
 #PBS -j eo  
@@ -60,7 +58,7 @@ module load healpix/3.82-ifort-2023.0
 module load gsl/2.7.1
 module load fftw/3.3.9
 
-~/miniconda3/envs/pycs/bin/python /home/tersenov/shear-pipe-peaks/scripts/data_processing_test.py %(cosmo)s /home/tersenov/shear-pipe-peaks/input/master_file.txt %(output_directory)s %(n_tiles)d %(map_method)s     
+~/miniconda3/envs/pycs/bin/python /home/tersenov/shear-pipe-peaks/scripts/data_processing_test.py %(cosmo)s /home/tersenov/shear-pipe-peaks/input/master_file.txt %(output_directory)s %(n_tiles)d %(map_method)s %(run)s  
     """ % locals()
     # write to file
     f.write(text)

@@ -13,7 +13,7 @@ from sp_peaks import plotting
 from collections import defaultdict
 from multiprocessing import Pool
 import argparse
-
+from scipy import ndimage
 
 # CONSTANTS AND PARAMETERS
 N_GAL = 7 
@@ -48,16 +48,23 @@ def make_shear_map(CATALOG_FILE, add_noise=True):
     g2_sim = catalog_data['gamma2_sim']
     
     x, y = radec2xy(np.mean(ra), np.mean(dec), ra, dec)
+    # convert x,y from rad to arcmin
+    x, y = x * 60 * 180 / np.pi, y * 60 * 180 / np.pi
+    
     Nx, Ny = int(SIZE_X_DEG / PIX_ARCMIN * 60), int(SIZE_Y_DEG / PIX_ARCMIN * 60)
     galmap = bin2d(x, y, npix=(Nx, Ny))
     mask = (galmap > 0).astype(int)
 
+    # variable noise level
     sigma_noise = np.zeros_like(galmap)
     sigma_noise[mask != 0] = SHAPE_NOISE / np.sqrt(2 * galmap[mask != 0])
     sigma_noise[mask == 0] = np.max(sigma_noise[mask != 0])
+    
+    # # constant noise level
+    # sigma_noise = np.ones_like(galmap) * SHAPE_NOISE / np.sqrt(2 * N_GAL)
     # noise_map = sigma_noise * np.random.randn(sigma_noise.shape[0], sigma_noise.shape[1])
 
-    e1map, e2map = bin2d(x, y, npix=(Nx, Ny), v=(g1_sim, g2_sim))
+    e1map, e2map = bin2d(x, y, npix=(Nx, Ny), v=(g1_sim, g2_sim)) 
 
     if add_noise:
         # Add noise only if requested
@@ -65,6 +72,15 @@ def make_shear_map(CATALOG_FILE, add_noise=True):
         noise_e2 = np.random.randn(*e2map.shape) * sigma_noise
         e1map_noisy = e1map + noise_e1 * mask
         e2map_noisy = e2map + noise_e2 * mask
+        
+        # # smooth the noisy maps with a gaussian filter 
+        # sm_e1map_noisy = ndimage.gaussian_filter(e1map_noisy, 2)
+        # sm_e2map_noisy = ndimage.gaussian_filter(e2map_noisy, 2)
+
+        # # the final e1map will be the e1map_noisy where the mask is 1 and the smoothed e1map where the mask is 0
+        # e1map_noisy = e1map_noisy * mask + sm_e1map_noisy * (1 - mask)
+        # e2map_noisy = e2map_noisy * mask + sm_e2map_noisy * (1 - mask)
+        
         return e1map_noisy, e2map_noisy, mask, sigma_noise
     else:
         # Return the maps without added noise
@@ -103,20 +119,40 @@ def make_mass_map(e1map, e2map, mask, sigma_noise, method='ks'):
     if method == 'ks':
         M = massmap2d(name='mass')
         M.init_massmap(d.nx, d.ny)
-        M.DEF_niter = 50
-        M.niter_debias = 30
         M.Verbose = False
         ks = M.gamma_to_cf_kappa(e1map, -e2map)
         ks = ks.real
         return ks
+    
+    if method == 'ksi':
+        M = massmap2d(name='mass')
+        M.init_massmap(d.nx, d.ny)
+        M.DEF_niter = 50
+        M.niter_debias = 30
+        M.Verbose = False
+        ksi =  M.iks(d.g1, d.g2, mask) 
+        ksi = ksi.real
+        return ksi
 
-def summary_statistics(ks_noisy, sigma_noise, mask, nscales=NSCALES, min_snr=MIN_SNR, max_snr=MAX_SNR, nbins=NBINS, nbins_l1=NBINS_L1):
+    if method == 'wiener':
+        M = massmap2d(name='mass')
+        M.init_massmap(d.nx, d.ny)
+        M.DEF_niter = 50
+        M.niter_debias = 30
+        M.Verbose = False
+        pn = readfits('/home/tersenov/shear-pipe-peaks/input/exp_wiener_miceDSV_noise_powspec.fits')
+        ps1d = readfits('/home/tersenov/shear-pipe-peaks/input/exp_wiener_miceDSV_signal_powspec.fits')
+        d.ps1d = ps1d
+        ke_inp_pwiener, kb_winp = M.prox_wiener_filtering(d.g1, d.g2, d.ps1d, d.Ncov, Pn=pn, Inpaint=True) #, Pn=Pn) # ,ktr=InShearData.ktr)
+        return ke_inp_pwiener
+
+def summary_statistics(mass_map, sigma_noise, mask, nscales=NSCALES, min_snr=MIN_SNR, max_snr=MAX_SNR, nbins=NBINS, nbins_l1=NBINS_L1):
     """
     Computes summary statistics from a noisy kappa map using wavelet transforms.
 
     Parameters:
-    ks_noisy : np.ndarray
-        Noisy kappa map.
+    mass_map : np.ndarray
+        (Noisy) kappa map.
     sigma_noise : np.ndarray
         Noise level in the kappa map.
     mask : np.ndarray
@@ -134,13 +170,13 @@ def summary_statistics(ks_noisy, sigma_noise, mask, nscales=NSCALES, min_snr=MIN
     Tuple[np.ndarray, np.ndarray, np.ndarray]
         Arrays of the computed Mono_Peaks_Count, Peaks_Count, and l1norm.
     """
-    nx, ny = ks_noisy.shape
+    nx, ny = mass_map.shape
     WT = starlet2d(gen2=False, l2norm=False, verb=False)
     WT.init_starlet(nx, ny, nscale=nscales)
     H = HOS_starlet_l1norm_peaks(WT)
     H.set_bins(Min=min_snr, Max=max_snr, nbins=nbins)
-    H.set_data(ks_noisy, SigmaMap=sigma_noise, Mask=mask)
-    H.get_mono_scale_peaks(ks_noisy, sigma_noise, mask=mask)
+    H.set_data(mass_map, SigmaMap=sigma_noise, Mask=mask)
+    H.get_mono_scale_peaks(mass_map, sigma_noise, smoothing_sigma=6, mask=mask)
     H.get_wtpeaks(Mask=mask)
     pc = H.Peaks_Count
     H.get_wtl1(nbins_l1*2, Mask=mask, min_snr=-6, max_snr=6)
@@ -168,12 +204,11 @@ def process_tile(filename, mass_mapping_method='ks', add_noise=False, save_mass_
         Tuple of summary statistics: Mono_Peaks_Count, Peaks_Count, l1norm.
     """
     e1map, e2map, mask, sigma_noise = make_shear_map(filename, add_noise=add_noise)
-    ks = make_mass_map(e1map, e2map, mask, sigma_noise, method=mass_mapping_method)
-    ks_noisy = ks
-    peaks_mono, peaks_multi, l1norm = summary_statistics(ks_noisy, sigma_noise, mask)
+    mass_map = make_mass_map(e1map, e2map, mask, sigma_noise, method=mass_mapping_method)
+    peaks_mono, peaks_multi, l1norm = summary_statistics(mass_map, sigma_noise, mask)
 
     if save_mass_map:
-        np.save(mass_map_output_file, ks*mask)
+        np.save(mass_map_output_file, mass_map*mask)
 
     return peaks_mono, peaks_multi, l1norm
 
@@ -230,18 +265,18 @@ def worker(args):
     Tuple[np.ndarray, np.ndarray, np.ndarray]
         The summary statistics from processing the tile.
     """
-    filename, mass_mapping_method, add_noise, save_mass_map = args
+    filename, mass_mapping_method, add_noise, save_mass_map, run_number = args
     
     # Construct output filename for the mass map
     base_name, file_ext = os.path.splitext(filename)
     new_file_ext = '.npy'
-    mass_map_output_file = f"{base_name}_{mass_mapping_method}{new_file_ext}" if save_mass_map else None
+    mass_map_output_file = f"{base_name}_{mass_mapping_method}_run{run_number}{new_file_ext}" if save_mass_map else None
     
     # Simulate processing the tile
     summary_statistics = process_tile(filename, mass_mapping_method, add_noise, save_mass_map, mass_map_output_file)
     return summary_statistics
 
-def process_footprint(file_list_path, output_dir=None, mass_mapping_method='ks', add_noise=True, save_mass_map=False, num_processes=19):
+def process_footprint(file_list_path, output_dir=None, mass_mapping_method='ks', add_noise=True, save_mass_map=False, num_processes=19, run_number=0):
     """
     Processes a set of tiles (a footprint) in parallel, averaging summary statistics.
 
@@ -266,7 +301,7 @@ def process_footprint(file_list_path, output_dir=None, mass_mapping_method='ks',
     if save_mass_map and output_dir:
         os.makedirs(output_dir, exist_ok=True)
     
-    args = [(filename, mass_mapping_method, add_noise, save_mass_map) for filename in file_list_path]
+    args = [(filename, mass_mapping_method, add_noise, save_mass_map, run_number) for filename in file_list_path]
     print(args)
     
     with Pool(num_processes) as pool:
@@ -291,7 +326,7 @@ def process_footprint(file_list_path, output_dir=None, mass_mapping_method='ks',
     # Return the averaged statistics
     return SS_PC_mean, MS_PC_mean, l1_norm_mean
 
-def process_cosmo(cosmology, master_file_path, output_dir, mass_mapping_method='ks', add_noise=True, save_mass_map=False, num_processes=19):
+def process_cosmo(cosmology, master_file_path, output_dir, mass_mapping_method='ks', add_noise=True, save_mass_map=False, num_processes=19, run_number=0):
     """
     Processes all tiles for a specific cosmology, generating and saving summary statistics
     for each bin in a specified directory.
@@ -311,6 +346,8 @@ def process_cosmo(cosmology, master_file_path, output_dir, mass_mapping_method='
         If True, saves the mass maps alongside the catalog files.
     num_processes : int
         Number of processes for parallel execution.
+    run_number : int
+        Run identifier.
 
     Returns:
     None
@@ -343,7 +380,8 @@ def process_cosmo(cosmology, master_file_path, output_dir, mass_mapping_method='
                     mass_mapping_method,
                     add_noise,
                     save_mass_map,
-                    num_processes
+                    num_processes,
+                    run_number
                 )
                 
                 all_results.append((seed, LOS, SS_PC_mean, MS_PC_mean, l1_norm_mean))
@@ -354,7 +392,7 @@ def process_cosmo(cosmology, master_file_path, output_dir, mass_mapping_method='
         results_array = np.array(all_results, dtype=dtype)
         
         # Save the results array for the current bin
-        save_path = os.path.join(output_dir, f"{cosmology}_{bin}_{mass_mapping_method}_run.npy")
+        save_path = os.path.join(output_dir, f"{cosmology}_{bin}_{mass_mapping_method}_run{run_number}.npy")
         np.save(save_path, results_array)
         print(f"Saved: {save_path}")
 
@@ -365,6 +403,7 @@ if __name__ == "__main__":
     parser.add_argument('output_dir', type=str, help='Directory where summary statistics should be saved.')
     parser.add_argument('num_tiles', type=int, help='Number of tiles in the footprint.')
     parser.add_argument('mass_mapping_method', type=str, help='Mass mapping method to use.')
+    parser.add_argument('run_number', type=int, help='Run identifier.')
     args = parser.parse_args()
 
     # Assuming master_file_path and output_directory are constants or can be derived from other parameters
@@ -378,5 +417,6 @@ if __name__ == "__main__":
         args.mass_mapping_method,
         True,  # Consider if you want these as command-line arguments too
         True,
-        args.num_tiles
+        args.num_tiles,
+        args.run_number
     )

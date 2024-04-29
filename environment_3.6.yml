@@ -1,0 +1,15 @@
+name: peaks_3.6
+channels:
+  - conda-forge
+dependencies:
+  - python==3.6.13
+  - pip>=21
+  - numpy
+  - astropy
+  - scipy
+  - scikit-learn==0.20
+  - matplotlib
+  - joblib
+  - tqdm
+  - pip:
+    - -r requirements.txt

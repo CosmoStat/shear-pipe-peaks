@@ -31,9 +31,8 @@ col_names = [
 col_names_essential = [
     "RA",
     "Dec",
-    "e1_data",
-    "e2_data",
-    "redshift_true_sim",
+    "gamma1_sim",
+    "gamma2_sim",
 ]
 
 def read_catalogue(file_path, all_col=True):

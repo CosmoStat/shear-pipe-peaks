@@ -1,0 +1,15 @@
+name: peaks
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.9
+  - pip>=21
+  - numpy
+  - astropy
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - joblib
+  - tqdm
+  - pip:
+    - -r requirements.txt

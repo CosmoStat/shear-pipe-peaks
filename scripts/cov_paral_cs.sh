@@ -9,5 +9,9 @@
 #PBS -m abe  
 #PBS -M atersenov@physics.uoc.gr  
 
+module load healpix/3.82-ifort-2023.0
+module load gsl/2.7.1
+module load fftw/3.3.9
+
 ## your bash script here:
-/home/tersenov/.conda/envs/Sparse2D/bin/python /home/tersenov/shear-pipe-peaks/scripts/cov_paral_cs.py '/home/tersenov/shear-pipe-peaks' --nproc 19
+~/miniconda3/envs/pycs/bin/python /home/tersenov/shear-pipe-peaks/scripts/cov_paral_cs.py '/home/tersenov/shear-pipe-peaks' --nproc 19
