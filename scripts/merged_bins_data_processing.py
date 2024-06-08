@@ -22,11 +22,11 @@ SIZE_X_DEG = 10.
 SIZE_Y_DEG = 10.
 PIX_ARCMIN = 1.
 SHAPE_NOISE = 0.44
-NSCALES = 5
+NSCALES = 6
 MIN_SNR = -2
 MAX_SNR = 6
-NBINS = 31
-NBINS_L1 = 40
+NBINS = 21
+NBINS_L1 = 20
 
 
 def merge_catalogs(file_paths, all_col=True):
@@ -90,7 +90,7 @@ def generate_file_lists(master_file_path, cosmology):
     return groups
 
 
-def make_shear_map(CATALOG_FILE, add_noise=True):
+def make_shear_map(CATALOG_FILE, add_noise=True, random_seed=None):
     """
     Generates shear maps from a catalog file, with an option to add Gaussian noise.
 
@@ -111,6 +111,9 @@ def make_shear_map(CATALOG_FILE, add_noise=True):
     g2_sim = catalog_data['gamma2_sim']
     
     x, y = radec2xy(np.mean(ra), np.mean(dec), ra, dec)
+    # convert x,y from rad to arcmin
+    x, y = x * 60 * 180 / np.pi, y * 60 * 180 / np.pi
+    
     Nx, Ny = int(SIZE_X_DEG / PIX_ARCMIN * 60), int(SIZE_Y_DEG / PIX_ARCMIN * 60)
     galmap = bin2d(x, y, npix=(Nx, Ny))
     mask = (galmap > 0).astype(int)
@@ -121,13 +124,18 @@ def make_shear_map(CATALOG_FILE, add_noise=True):
     sigma_noise[mask == 0] = np.max(sigma_noise[mask != 0])
 
     e1map, e2map = bin2d(x, y, npix=(Nx, Ny), v=(g1_sim, g2_sim))
+    
+    # Set random seed if provided
+    if random_seed is not None:
+        np.random.seed(random_seed)
 
     if add_noise:
         # Add noise only if requested
         noise_e1 = np.random.randn(*e1map.shape) * sigma_noise
         noise_e2 = np.random.randn(*e2map.shape) * sigma_noise
-        e1map_noisy = 0.01*e1map + noise_e1 * mask
-        e2map_noisy = 0.01*e2map + noise_e2 * mask
+        e1map_noisy = e1map + noise_e1 * mask
+        e2map_noisy = e2map + noise_e2 * mask
+        
         return e1map_noisy, e2map_noisy, mask, sigma_noise
     else:
         # Return the maps without added noise
@@ -190,8 +198,20 @@ def make_mass_map(e1map, e2map, mask, sigma_noise, method='ks'):
         pn = readfits('/home/tersenov/shear-pipe-peaks/input/exp_wiener_miceDSV_noise_powspec.fits')
         ps1d = readfits('/home/tersenov/shear-pipe-peaks/input/exp_wiener_miceDSV_signal_powspec.fits')
         d.ps1d = ps1d
-        ke_inp_pwiener, kb_winp = M.prox_wiener_filtering(d.g1, d.g2, d.ps1d, d.Ncov, Pn=pn, Inpaint=True) #, Pn=Pn) # ,ktr=InShearData.ktr)
+        ke_inp_pwiener, kb_winp = M.prox_wiener_filtering(InshearData=d, PowSpecSignal=d.ps1d, Pn=pn, niter=M.DEF_niter, Inpaint=True) 
         return ke_inp_pwiener
+    
+    if method == 'mca':
+        M = massmap2d(name='mass')
+        M.init_massmap(d.nx, d.ny)
+        M.DEF_niter = 30
+        M.Verbose = False
+        ps1d = readfits('/home/tersenov/shear-pipe-peaks/input/exp_wiener_miceDSV_signal_powspec.fits')
+        d.ps1d = ps1d        
+        mcalens, _, _, _ = M.sparse_wiener_filtering(d, d.ps1d, Nsigma=3, niter=M.DEF_niter, Inpaint=True, Bmode=True)
+        return mcalens
+    
+    
 
 def summary_statistics(mass_map, sigma_noise, mask, nscales=NSCALES, min_snr=MIN_SNR, max_snr=MAX_SNR, nbins=NBINS, nbins_l1=NBINS_L1):
     """
@@ -223,15 +243,16 @@ def summary_statistics(mass_map, sigma_noise, mask, nscales=NSCALES, min_snr=MIN
     H = HOS_starlet_l1norm_peaks(WT)
     H.set_bins(Min=min_snr, Max=max_snr, nbins=nbins)
     H.set_data(mass_map, SigmaMap=sigma_noise, Mask=mask)
-    H.get_mono_scale_peaks(mass_map, sigma_noise, smoothing_sigma=6, mask=mask)
+    H.get_mono_scale_peaks(mass_map, sigma_noise, smoothing_sigma=12, mask=mask)
     H.get_wtpeaks(Mask=mask)
     pc = H.Peaks_Count
     H.get_wtl1(nbins_l1*2, Mask=mask, min_snr=-6, max_snr=6)
 
     return H.Mono_Peaks_Count, H.Peaks_Count, H.l1norm
 
-def process_tile(catalog, mass_mapping_method='ks', add_noise=True, save_mass_map=False, mass_map_output_file=None):
-    e1map, e2map, mask, sigma_noise = make_shear_map(catalog, add_noise=add_noise)
+def process_tile(catalog, mass_mapping_method='ks', add_noise=True, save_mass_map=False, mass_map_output_file=None, random_seed=None):
+    
+    e1map, e2map, mask, sigma_noise = make_shear_map(catalog, add_noise=add_noise, random_seed=random_seed)
     mass_map = make_mass_map(e1map, e2map, mask, sigma_noise, method=mass_mapping_method)
     peaks_mono, peaks_multi, l1norm = summary_statistics(mass_map, sigma_noise, mask)
 
@@ -242,24 +263,24 @@ def process_tile(catalog, mass_mapping_method='ks', add_noise=True, save_mass_ma
 
 def worker(args):
     
-    catalog, mass_mapping_method, add_noise, save_mass_map, run_number = args
+    catalog, mass_mapping_method, add_noise, save_mass_map, run_number, random_seed = args
     
     # Construct output filename for the mass map
     base_name = '/n17data/tersenov/SLICS/Cosmo_DES/summary_stats/combined_bins/mass_maps/'
     new_file_ext = '.npy'
-    mass_map_output_file = f"{base_name}merged_catalog_{mass_mapping_method}_run{run_number}{new_file_ext}" if save_mass_map else None
+    mass_map_output_file = f"{base_name}merged_catalog_{mass_mapping_method}_run{run_number}_rs{random_seed}{new_file_ext}" if save_mass_map else None
 
     # Simulate processing the tile
-    summary_statistics = process_tile(catalog, mass_mapping_method, add_noise, save_mass_map=False, mass_map_output_file=mass_map_output_file)
+    summary_statistics = process_tile(catalog, mass_mapping_method, add_noise, save_mass_map=False, mass_map_output_file=mass_map_output_file, random_seed=random_seed)
     
     return summary_statistics
 
-def process_footprint(catalog_list, output_dir=None, mass_mapping_method='ks', add_noise=True, save_mass_map=False, num_processes=19, run_number=0):
+def process_footprint(catalog_list, output_dir=None, mass_mapping_method='ks', add_noise=True, save_mass_map=False, num_processes=19, run_number=0, random_seed=None):
 
     if save_mass_map and output_dir:
         os.makedirs(output_dir, exist_ok=True)
     
-    args = [(catalog, mass_mapping_method, add_noise, save_mass_map, run_number) for catalog in catalog_list]
+    args = [(catalog, mass_mapping_method, add_noise, save_mass_map, run_number, random_seed) for catalog in catalog_list]
     
     with Pool(num_processes) as pool:
         results = pool.map(worker, args)
@@ -283,7 +304,7 @@ def process_footprint(catalog_list, output_dir=None, mass_mapping_method='ks', a
     # Return the averaged statistics
     return SS_PC_mean, MS_PC_mean, l1_norm_mean
 
-def process_cosmo(cosmology, master_file_path, output_dir, mass_mapping_method='ks', add_noise=True, save_mass_map=False, num_processes=19, run_number=0):
+def process_cosmo(cosmology, master_file_path, output_dir, mass_mapping_method='ks', add_noise=True, save_mass_map=False, num_processes=19, run_number=0, random_seed=None):
 
     if save_mass_map and output_dir:
         os.makedirs(output_dir, exist_ok=True)
@@ -315,7 +336,6 @@ def process_cosmo(cosmology, master_file_path, output_dir, mass_mapping_method='
                 file_paths_for_every_bin.append(file_paths)
 
             
-            
             for i in range(19):
                 # merge the catalogs
                 combined_catalog = merge_catalogs(np.array(file_paths_for_every_bin)[:,i][:])
@@ -329,7 +349,9 @@ def process_cosmo(cosmology, master_file_path, output_dir, mass_mapping_method='
                 mass_mapping_method,
                 add_noise,
                 save_mass_map,
-                num_processes
+                num_processes,
+                run_number,
+                random_seed
             )
             
             all_results.append((seed, LOS, SS_PC_mean, MS_PC_mean, l1_norm_mean))
@@ -341,7 +363,7 @@ def process_cosmo(cosmology, master_file_path, output_dir, mass_mapping_method='
     results_array = np.array(all_results, dtype=dtype)
     
     # Save the results array for the current bin
-    save_path = os.path.join(output_dir, f"{cosmology}_{mass_mapping_method}_run{run_number}.npy")
+    save_path = os.path.join(output_dir, f"{cosmology}_{mass_mapping_method}_run{run_number}_rs{random_seed}.npy")
     np.save(save_path, results_array)
     print(f"Saved: {save_path}")
 
@@ -355,19 +377,23 @@ if __name__ == "__main__":
     parser.add_argument('num_tiles', type=int, help='Number of tiles in the footprint.')
     parser.add_argument('mass_mapping_method', type=str, help='Mass mapping method to use.')
     parser.add_argument('run_number', type=int, help='Run identifier.')
+    parser.add_argument('random_seed', type=int, nargs='?', default=None, help='Random seed for noise generation. If not provided, random seed is None.')
+    
     args = parser.parse_args()
 
     # Assuming master_file_path and output_directory are constants or can be derived from other parameters
     master_file_path = '/home/tersenov/shear-pipe-peaks/input/master_file.txt'  # Adjust this path as necessary
-    output_directory = '/n17data/tersenov/SLICS/Cosmo_DES/summary_stats/combined_bins'  # Adjust this path as necessary
+    # output_directory = '/n17data/tersenov/SLICS/Cosmo_DES/summary_stats/combined_bins'  # Adjust this path as necessary
 
     process_cosmo(
         args.cosmology,
         master_file_path,
-        output_directory,
+        # output_directory,
+        args.output_dir,
         args.mass_mapping_method,
         True,  # Consider if you want these as command-line arguments too
         True,
         args.num_tiles,
-        args.run_number
+        args.run_number,
+        args.random_seed
     )

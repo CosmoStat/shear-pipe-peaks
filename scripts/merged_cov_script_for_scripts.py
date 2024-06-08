@@ -43,24 +43,29 @@ for real in np.arange(n_realizations):
     fileroot =  '%(script_output_directory)s/%(run)s%(real)s'% locals()
     filename = fileroot+'.sh'
     print(filename)
-    f = open(filename, 'w') 
-    text = """#!/bin/bash                                                                    
-#PBS -o %(fileroot)s.o
-#PBS -l nodes=1:ppn=%(n_tiles)d,walltime=12:00:00,mem=32GB
-#PBS -N %(job_name)s                                                           
-#PBS -j eo  
-echo This jobs runs on the following processors:
-NODES=`cat $PBS_NODEFILE`
-echo $NODES
-NPROCS=`wc -l < $PBS_NODEFILE`
-echo This job has allocated $NPROCS nodes  
+    with open(filename, 'w') as f:
+        f.write("#!/bin/bash\n")
+        f.write("#SBATCH --partition=pscomp\n")        
+        f.write("#SBATCH --output=%s.o\n" % fileroot)
+        f.write("#SBATCH --nodes=1\n")
+        f.write("#SBATCH --ntasks-per-node=%d\n" % n_tiles)
+        f.write("#SBATCH --time=12:00:00\n")
+        f.write("#SBATCH --mem=32GB\n")
+        f.write("#SBATCH --job-name=%s\n" % job_name)
+        f.write("#SBATCH --mail-type=END\n")
+        f.write("#SBATCH --mail-user=atersenov@physics.uoc.gr\n\n")
+        
+        f.write("echo 'This job runs on the following processors:'\n")
+        f.write("NODES=$(scontrol show hostnames $SLURM_JOB_NODELIST)\n")
+        f.write("echo $NODES\n")
+        f.write("NPROCS=$(scontrol show nodes $SLURM_JOB_NODELIST | wc -l)\n")
+        f.write("echo 'This job has allocated $NPROCS nodes'\n\n")        
+    
+        f.write("module load healpix/3.82-ifx-2024.0\n\n")
 
-module load healpix/3.82-ifort-2023.0
-module load gsl/2.7.1
-module load fftw/3.3.9
+        f.write("~/miniconda3/envs/pysap/bin/python /home/tersenov/shear-pipe-peaks/scripts/merged_bins_cov_cs.py %s /home/tersenov/shear-pipe-peaks/input/master_file_cov.txt %s %d %s %s\n" % (real, output_directory, n_tiles, map_method, run))
+    
+    
 
-~/miniconda3/envs/pycs/bin/python /home/tersenov/shear-pipe-peaks/scripts/merged_bins_cov_cs.py %(real)s /home/tersenov/shear-pipe-peaks/input/master_file_cov.txt %(output_directory)s %(n_tiles)d %(map_method)s %(run)s  
-    """ % locals()
-    # write to file
-    f.write(text)
-    f.close()
+
+# ~/miniconda3/envs/pycs/bin/python /home/tersenov/shear-pipe-peaks/scripts/merged_bins_cov_cs.py %(real)s /home/tersenov/shear-pipe-peaks/input/master_file_cov.txt %(output_directory)s %(n_tiles)d %(map_method)s %(run)s  

@@ -22,12 +22,12 @@ SIZE_X_DEG = 10.
 SIZE_Y_DEG = 10.
 PIX_ARCMIN = 1.
 SHAPE_NOISE = 0.44
-NSCALES = 5
+NSCALES = 6
 # Histogram parameters
 MIN_SNR = -2
 MAX_SNR = 6
-NBINS = 31
-NBINS_L1 = 40
+NBINS = 21
+NBINS_L1 = 20
 
 NUM_REALIZATIONS = 124  # Number of realizations
 
@@ -60,7 +60,7 @@ def find_corresponding_files_for_tile(tile_file):
     for bin_num in range(1, num_bins + 1):
         if bin_num != bin_number:
             # find the corresponding file
-            corresponding_file = f"/n17data/tersenov/Cov_DES_SLICS/LOS{LOS_number:03d}/DES_MocksCat_SLICS_4_Bin{bin_number:01d}_LOS{LOS_number:03d}_R{tile_number:02d}.dat"
+            corresponding_file = f"/n17data/tersenov/Cov_DES_SLICS/LOS{LOS_number}/DES_MocksCat_SLICS_4_Bin{bin_number}_LOS{LOS_number}_R{tile_number}.dat"
             corresponding_files.append(corresponding_file)
             
     return corresponding_files
@@ -105,6 +105,7 @@ def compute_statistics(args):
     e1map, e2map = bin2d(x, y, npix=(Nx, Ny), v=(g1_sim, g2_sim)) 
     noise_e1 = np.random.randn(*e1map.shape) * sigma_noise
     noise_e2 = np.random.randn(*e2map.shape) * sigma_noise
+    
     e1map = e1map + noise_e1 * mask # add noise to the map
     e2map = e2map + noise_e2 * mask # add noise to the map
 
@@ -140,6 +141,28 @@ def compute_statistics(args):
         ksi =  M.iks(d.g1, d.g2, mask) 
         ksi = ksi.real    
         mass_map = ksi
+        
+    if method == 'wiener':
+        M = massmap2d(name='mass')
+        M.init_massmap(d.nx, d.ny)
+        M.DEF_niter = 50
+        M.niter_debias = 30
+        M.Verbose = False
+        pn = readfits('/home/tersenov/shear-pipe-peaks/input/exp_wiener_miceDSV_noise_powspec.fits')
+        ps1d = readfits('/home/tersenov/shear-pipe-peaks/input/exp_wiener_miceDSV_signal_powspec.fits')
+        d.ps1d = ps1d
+        ke_inp_pwiener, kb_winp = M.prox_wiener_filtering(InshearData=d, PowSpecSignal=d.ps1d, Pn=pn, niter=M.DEF_niter, Inpaint=True) 
+        mass_map = ke_inp_pwiener
+        
+    if method == 'mca':
+        M = massmap2d(name='mass')
+        M.init_massmap(d.nx, d.ny)
+        M.DEF_niter = 30
+        M.Verbose = False
+        ps1d = readfits('/home/tersenov/shear-pipe-peaks/input/exp_wiener_miceDSV_signal_powspec.fits')
+        d.ps1d = ps1d        
+        mcalens, _, _, _ = M.sparse_wiener_filtering(d, d.ps1d, Nsigma=3, niter=M.DEF_niter, Inpaint=True, Bmode=True)
+        mass_map = mcalens            
 
     WT = starlet2d(gen2=False,l2norm=False, verb=False)
     WT.init_starlet(nx, ny, nscale=NSCALES)
@@ -147,7 +170,7 @@ def compute_statistics(args):
     H = HOS_starlet_l1norm_peaks(WT)
     H.set_bins(Min=MIN_SNR, Max=MAX_SNR, nbins=NBINS)
     H.set_data(mass_map, SigmaMap=sigma_noise, Mask=mask)
-    H.get_mono_scale_peaks(mass_map, sigma_noise, smoothing_sigma=6, mask=mask)
+    H.get_mono_scale_peaks(mass_map, sigma_noise, smoothing_sigma=12, mask=mask)
     peak_counts_single = H.Mono_Peaks_Count
     H.get_wtpeaks(Mask=mask)
     peak_counts_multi = H.Peaks_Count
@@ -155,8 +178,6 @@ def compute_statistics(args):
     l1norm_histogram = H.l1norm
 
     return peak_counts_single, peak_counts_multi, l1norm_histogram
-
-
 
 def compute_cov_datavectors(realization, master_file_path, output_dir, num_tiles, mass_mapping_method, run):
     
